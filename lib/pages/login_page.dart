@@ -5,6 +5,9 @@ import 'package:http/http.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// Import Services
+import 'package:recipes/services/auth/auth.dart';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
 
@@ -15,6 +18,8 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   String? email;
   String? password;
+
+  bool isLoggedIn = false;
 
   void login(String email, String password) async {
     var response = await post(Uri.parse('http://192.168.0.102:3000/oauth/token'), body: {
@@ -41,7 +46,26 @@ class _LoginPageState extends State<LoginPage> {
     await pref.setString('auth:refresh_token', refreshToken);
 
     Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
-    print(decodedToken['user']['email']);
+
+    await pref.setString('user:email', decodedToken['user']['email']);
+    await pref.setInt('user:id', decodedToken['user']['id']);
+
+    Navigator.pushReplacementNamed(context, '/');
+  }
+
+  void setLoggedInDetails()async {
+    Auth auth = Auth();
+    isLoggedIn = await auth.isLoggedIn();
+
+    if (isLoggedIn) {
+      Navigator.pushReplacementNamed(context, '/');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setLoggedInDetails();
   }
 
   @override

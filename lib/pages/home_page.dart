@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-// Import services
-import 'package:recipes/services/recipes/all_recipes.dart';
+// Import controllers
+import 'package:recipes/controllers/recipes_controller.dart';
 
 // Import models
 import 'package:recipes/models/recipe.dart';
@@ -19,11 +19,11 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Recipe> allRecipes = [];
-  AllRecipes recipes = AllRecipes();
+  RecipesController recipesController = RecipesController();
 
   void getAllRecipes() async {
-    await recipes.getData();
-    List<Recipe> allRecipes = recipes.list;
+    await recipesController.getData();
+    List<Recipe> allRecipes = recipesController.list;
     setState(() {
       this.allRecipes = allRecipes;
     });

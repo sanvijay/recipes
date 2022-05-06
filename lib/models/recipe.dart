@@ -25,13 +25,13 @@ class Recipe {
     this.imageUrl = image_url;
   }
 
-  void saveToCloud() async {
+  void saveToCloud(String token) async {
     Uri url = Uri.http(
       '192.168.0.102:3000',
       '/recipe/new',
       { 'title': title, 'description': description, 'image_url': imageUrl }
     );
-    Response response = await post(url);
+    Response response = await post(url, headers: { 'Authorization': 'Bearer $token' } );
     Map data = jsonDecode(response.body);
 
     slug = data['slug'];

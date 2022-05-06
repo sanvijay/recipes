@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+// Import Services
+import 'package:recipes/services/auth/auth.dart';
+
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
 
@@ -8,6 +11,23 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  bool isLoggedIn = false;
+
+  void setLoggedInDetails()async {
+    Auth auth = Auth();
+    isLoggedIn = await auth.isLoggedIn();
+
+    if (isLoggedIn) {
+      Navigator.pushReplacementNamed(context, '/');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setLoggedInDetails();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(

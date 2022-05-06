@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 
+// Import components
+import 'package:recipes/components/login_message.dart';
+
 // Import services
-import 'package:recipes/services/recipes/all_recipes.dart';
+import 'package:recipes/services/auth/auth.dart';
 
 // Import models
 import 'package:recipes/models/recipe.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddNewRecipePage extends StatefulWidget {
   const AddNewRecipePage({Key? key}) : super(key: key);
@@ -17,8 +21,24 @@ class _AddNewRecipePageState extends State<AddNewRecipePage> {
   List<String> fields = ['title', 'description', 'image_url'];
   Map values = {};
   Map errors = {};
+  bool isLoggedIn = false;
 
-  void validateAndSaveData() {
+  void setLoggedInDetails()async {
+    Auth auth = Auth();
+    isLoggedIn = await auth.isLoggedIn();
+
+    setState(() {
+      isLoggedIn = isLoggedIn;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setLoggedInDetails();
+  }
+
+  void validateAndSaveData() async {
     errors = {};
     for(int i = 0; i < fields.length; i++) {
       if (values[fields[i]] == null || values[fields[i]] == '') {
@@ -30,6 +50,15 @@ class _AddNewRecipePageState extends State<AddNewRecipePage> {
 
     if (errors.isNotEmpty) { return; }
 
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String? token = pref.getString('auth:access_token');
+
+    if (token == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("You need to login")));
+      return;
+    }
+
     Recipe newRecipe = Recipe(slug: '');
     newRecipe.assignValues(
       values['description'],
@@ -37,7 +66,7 @@ class _AddNewRecipePageState extends State<AddNewRecipePage> {
       values['image_url']
     );
 
-    newRecipe.saveToCloud();
+    newRecipe.saveToCloud(token);
     Navigator.pop(context);
   }
 
@@ -49,7 +78,7 @@ class _AddNewRecipePageState extends State<AddNewRecipePage> {
         centerTitle: true,
         backgroundColor: Colors.redAccent,
       ),
-      body: SingleChildScrollView(
+      body: !isLoggedIn ? LoginMessage() : SingleChildScrollView(
         child: Column(
           children: [
             Padding(

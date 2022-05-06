@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:recipes/components/login_message.dart';
+
+// Import controllers
+import 'package:recipes/controllers/recipes_controller.dart';
 
 // Import services
-import 'package:recipes/services/recipes/all_recipes.dart';
+import 'package:recipes/services/auth/auth.dart';
 
 // Import models
 import 'package:recipes/models/recipe.dart';
@@ -18,22 +22,39 @@ class FavoritePage extends StatefulWidget {
 }
 
 class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMixin {
-  List<Recipe> allRecipes = [];
-  AllRecipes recipes = AllRecipes();
+  List<Recipe> allCreatedRecipes = [];
+  RecipesController recipesController = RecipesController();
 
   late TabController _tabController;
 
-  void getAllRecipes() async {
-    await recipes.getData();
-    List<Recipe> allRecipes = recipes.list;
+  bool isLoading = true;
+  bool isLoggedIn = false;
+
+  void setLoggedInDetails()async {
+    Auth auth = Auth();
+    isLoggedIn = await auth.isLoggedIn();
+
     setState(() {
-      this.allRecipes = allRecipes;
+      isLoggedIn = isLoggedIn;
+    });
+  }
+
+  void getAllRecipes() async {
+    Auth auth = Auth();
+    String? token = await auth.accessToken();
+    await recipesController.getCreatedData(token);
+    List<Recipe> allCreatedRecipes = recipesController.createdList;
+
+    setState(() {
+      this.allCreatedRecipes = allCreatedRecipes;
+      isLoading = false;
     });
   }
 
   @override
   void initState() {
     super.initState();
+    setLoggedInDetails();
     getAllRecipes();
     _tabController = TabController(vsync: this, length: 2);
   }
@@ -43,7 +64,7 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
     return Scaffold(
       bottomNavigationBar: const BottomNavigator(currentIndex: 1,),
 
-      body: allRecipes.isEmpty ?
+      body: isLoading ?
         const Center(child: Text("Loading...")) :
         SafeArea(
           child: Padding(
@@ -64,22 +85,22 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
                   child: Scaffold(
                     floatingActionButton: FloatingActionButton(
                       onPressed: () { Navigator.pushNamed(context, '/add-new-recipe'); },
-                      child: Icon(Icons.add),
+                      child: const Icon(Icons.add),
                     ),
                     body: TabBarView(
                       controller: _tabController,
                       children: [
-                        Column(
-                          children: allRecipes.map((recipe) => RecipeCard(recipe: recipe)).toList()
-                        ),
-                        Column(
+                        isLoggedIn ? Column(
+                          children: allCreatedRecipes.map((recipe) => RecipeCard(recipe: recipe)).toList()
+                        ) : LoginMessage(),
+                        isLoggedIn ? Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Column(
-                              children: allRecipes.map((recipe) => RecipeCard(recipe: recipe)).toList()
+                              children: allCreatedRecipes.map((recipe) => RecipeCard(recipe: recipe)).toList()
                             ),
                           ],
-                        ),
+                        ) : LoginMessage(),
                       ],
                     ),
                   ),
