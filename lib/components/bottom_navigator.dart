@@ -20,9 +20,11 @@ class BottomNavigator extends StatelessWidget {
       ],
       onTap: (index) {
         switch(index) {
-          case 0: { Navigator.pushReplacementNamed(context, '/'); }
+          case 0: { Navigator.of(context)
+              .pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false); }
           break;
-          case 1: { Navigator.pushReplacementNamed(context, '/favorite'); }
+          case 1: { Navigator.of(context)
+              .pushNamedAndRemoveUntil('/favorite', (Route<dynamic> route) => false); }
           break;
           case 2: { Navigator.pushNamed(context, '/login'); }
           break;

@@ -2,8 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 // Import Services
 import 'package:recipes/services/auth/auth.dart';
@@ -32,7 +30,10 @@ class _LoginPageState extends State<LoginPage> {
 
     if (response.statusCode == 200) {
       final body = jsonDecode(response.body);
-      pageRoute(body['access_token'], body['refresh_token']);
+      Auth auth = Auth();
+      auth.setAuthDetails(body['access_token'], body['refresh_token']);
+      Navigator.of(context)
+          .pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
     }
     else {
       ScaffoldMessenger.of(context)
@@ -40,25 +41,13 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void pageRoute(String accessToken, String refreshToken) async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    await pref.setString('auth:access_token', accessToken);
-    await pref.setString('auth:refresh_token', refreshToken);
-
-    Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
-
-    await pref.setString('user:email', decodedToken['user']['email']);
-    await pref.setInt('user:id', decodedToken['user']['id']);
-
-    Navigator.pushReplacementNamed(context, '/');
-  }
-
   void setLoggedInDetails()async {
     Auth auth = Auth();
     isLoggedIn = await auth.isLoggedIn();
 
     if (isLoggedIn) {
-      Navigator.pushReplacementNamed(context, '/');
+      Navigator.of(context)
+          .pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
     }
   }
 

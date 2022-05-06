@@ -63,7 +63,8 @@ class _AddNewRecipePageState extends State<AddNewRecipePage> {
     newRecipe.assignValues(
       values['description'],
       values['title'],
-      values['image_url']
+      values['image_url'],
+      false
     );
 
     newRecipe.saveToCloud(token);

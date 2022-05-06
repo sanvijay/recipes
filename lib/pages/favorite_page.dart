@@ -23,6 +23,7 @@ class FavoritePage extends StatefulWidget {
 
 class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMixin {
   List<Recipe> allCreatedRecipes = [];
+  List<Recipe> allFavoriteRecipes = [];
   RecipesController recipesController = RecipesController();
 
   late TabController _tabController;
@@ -43,10 +44,13 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
     Auth auth = Auth();
     String? token = await auth.accessToken();
     await recipesController.getCreatedData(token);
+    await recipesController.getFavoriteData(token);
     List<Recipe> allCreatedRecipes = recipesController.createdList;
+    List<Recipe> allFavoriteRecipes = recipesController.favoriteList;
 
     setState(() {
       this.allCreatedRecipes = allCreatedRecipes;
+      this.allFavoriteRecipes = allFavoriteRecipes;
       isLoading = false;
     });
   }
@@ -97,7 +101,7 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Column(
-                              children: allCreatedRecipes.map((recipe) => RecipeCard(recipe: recipe)).toList()
+                              children: allFavoriteRecipes.map((recipe) => RecipeCard(recipe: recipe)).toList()
                             ),
                           ],
                         ) : LoginMessage(),

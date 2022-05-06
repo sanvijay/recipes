@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Import models
 import 'package:recipes/models/recipe.dart';
+
+// Import controllers
+import '../controllers/recipes_controller.dart';
 
 class RecipePage extends StatefulWidget {
   const RecipePage({Key? key}) : super(key: key);
@@ -17,8 +21,11 @@ class _RecipePageState extends State<RecipePage> {
   getRecipeDetails(String slug) async {
     if (recipe != null) return;
 
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String? token = pref.getString('auth:access_token');
+
     recipe = Recipe(slug: slug);
-    await recipe?.setDetails();
+    await recipe?.setDetails(token);
     setState(() {
       recipe = recipe;
     });
@@ -36,14 +43,27 @@ class _RecipePageState extends State<RecipePage> {
         backgroundColor: Colors.redAccent,
         actions: <Widget>[
           GestureDetector(
-            child: Icon(Icons.favorite_border),
-            onTap: () {
+            child: recipe != null && recipe!.isFavorite ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
+            onTap: () async {
+              SharedPreferences pref = await SharedPreferences.getInstance();
+              String? token = pref.getString('auth:access_token');
 
+              if (token == null) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(const SnackBar(content: Text("You need to login")));
+                return;
+              }
+
+              RecipesController recipesController = RecipesController();
+              Recipe updatedRecipe = await recipesController.setFavorite(recipe!, !recipe!.isFavorite, token);
+              setState(() {
+                recipe = updatedRecipe;
+              });
             },
           ),
           const SizedBox(width: 20.0,),
           GestureDetector(
-            child: Icon(Icons.share),
+            child: const Icon(Icons.share),
             onTap: () {
 
             },
