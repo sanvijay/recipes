@@ -8,6 +8,7 @@ import 'package:recipes/pages/recipe_page.dart';
 import 'package:recipes/pages/favorite_page.dart';
 import 'package:recipes/pages/add_new_recipe.dart';
 import 'package:recipes/pages/register_page.dart';
+import 'package:recipes/pages/search_page.dart';
 
 void main() => runApp(MaterialApp(
   initialRoute: '/',
@@ -19,5 +20,6 @@ void main() => runApp(MaterialApp(
     '/login': (context) => const LoginPage(),
     '/register': (context) => const RegisterPage(),
     '/profile': (context) => const ProfilePage(),
+    '/search': (context) => const SearchPage(),
   },
 ));

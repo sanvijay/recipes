@@ -24,7 +24,7 @@ class BottomNavigator extends StatelessWidget {
               .pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false); }
           break;
           case 1: { Navigator.of(context)
-              .pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false); }
+              .pushNamedAndRemoveUntil('/search', (Route<dynamic> route) => false); }
           break;
           case 2: { Navigator.of(context)
               .pushNamedAndRemoveUntil('/favorite', (Route<dynamic> route) => false); }

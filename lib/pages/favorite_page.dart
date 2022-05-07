@@ -26,6 +26,15 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
   List<Recipe> allFavoriteRecipes = [];
   RecipesController recipesController = RecipesController();
 
+  final ScrollController _createdScrollController = ScrollController();
+  final ScrollController _favoriteScrollController = ScrollController();
+
+  int _createdPage = 1;
+  int _favoritePage = 1;
+
+  bool createdLoadMorePage = true;
+  bool favoriteLoadMorePage = true;
+
   late TabController _tabController;
 
   bool isLoading = true;
@@ -40,16 +49,25 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
     });
   }
 
-  void getAllRecipes() async {
+  void getAllCreatedRecipes(page) async {
     Auth auth = Auth();
     String? token = await auth.accessToken();
-    await recipesController.getCreatedData(token);
-    await recipesController.getFavoriteData(token);
+    await recipesController.getCreatedData(token, page);
     List<Recipe> allCreatedRecipes = recipesController.createdList;
-    List<Recipe> allFavoriteRecipes = recipesController.favoriteList;
 
     setState(() {
       this.allCreatedRecipes = allCreatedRecipes;
+      isLoading = false;
+    });
+  }
+
+  void getAllFavoriteRecipes(page) async {
+    Auth auth = Auth();
+    String? token = await auth.accessToken();
+    await recipesController.getFavoriteData(token, page);
+    List<Recipe> allFavoriteRecipes = recipesController.favoriteList;
+
+    setState(() {
       this.allFavoriteRecipes = allFavoriteRecipes;
       isLoading = false;
     });
@@ -59,8 +77,40 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
   void initState() {
     super.initState();
     setLoggedInDetails();
-    getAllRecipes();
+    getAllCreatedRecipes(_createdPage);
+    getAllFavoriteRecipes(_favoritePage);
     _tabController = TabController(vsync: this, length: 2);
+
+    _createdScrollController.addListener(() {
+      if (_createdScrollController.position.pixels ==
+          _createdScrollController.position.maxScrollExtent) {
+        if (createdLoadMorePage) {
+          int oldListCount = allCreatedRecipes.length;
+          getAllCreatedRecipes(++_createdPage);
+          int newListCount = allCreatedRecipes.length;
+
+          if (oldListCount == newListCount) {
+            createdLoadMorePage = false;
+          }
+        }
+      }
+    });
+
+    _favoriteScrollController.addListener(() {
+      if (_favoriteScrollController.position.pixels ==
+          _favoriteScrollController.position.maxScrollExtent) {
+        print("This is end");
+        if (favoriteLoadMorePage) {
+          int oldListCount = allFavoriteRecipes.length;
+          getAllFavoriteRecipes(++_favoritePage);
+          int newListCount = allFavoriteRecipes.length;
+
+          if (oldListCount == newListCount) {
+            favoriteLoadMorePage = false;
+          }
+        }
+      }
+    });
   }
 
   @override
@@ -94,17 +144,14 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
                     body: TabBarView(
                       controller: _tabController,
                       children: [
-                        isLoggedIn ? Column(
+                        isLoggedIn ? ListView(
+                          controller: _createdScrollController,
                           children: allCreatedRecipes.map((recipe) => RecipeCard(recipe: recipe)).toList()
-                        ) : LoginMessage(),
-                        isLoggedIn ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Column(
-                              children: allFavoriteRecipes.map((recipe) => RecipeCard(recipe: recipe)).toList()
-                            ),
-                          ],
-                        ) : LoginMessage(),
+                        ) : const LoginMessage(),
+                        isLoggedIn ? ListView(
+                          controller: _favoriteScrollController,
+                          children: allFavoriteRecipes.map((recipe) => RecipeCard(recipe: recipe)).toList()
+                        ) : const LoginMessage(),
                       ],
                     ),
                   ),

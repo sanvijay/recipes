@@ -21,9 +21,12 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<Recipe> allRecipes = [];
   RecipesController recipesController = RecipesController();
+  final ScrollController _scrollController = ScrollController();
+  int _page = 1;
+  bool loadMorePage = true;
 
-  void getAllRecipes() async {
-    await recipesController.getData();
+  void getAllRecipes(page) async {
+    await recipesController.getData(page);
     List<Recipe> allRecipes = recipesController.list;
     setState(() {
       this.allRecipes = allRecipes;
@@ -33,7 +36,22 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    getAllRecipes();
+    getAllRecipes(_page);
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        if (loadMorePage) {
+          int oldListCount = allRecipes.length;
+          getAllRecipes(++_page);
+          int newListCount = allRecipes.length;
+
+          if (oldListCount == newListCount) {
+            loadMorePage = false;
+          }
+        }
+      }
+    });
   }
 
   @override
@@ -48,7 +66,8 @@ class _HomePageState extends State<HomePage> {
       ),
       body: allRecipes.isEmpty ?
         const Center(child: Text("Loading...")) :
-        Column(
+        ListView(
+          controller: _scrollController,
           children: allRecipes.map((recipe) => RecipeCard(recipe: recipe)).toList()
         )
     );

@@ -8,8 +8,9 @@ class RecipesController {
   List<Recipe> createdList = [];
   List<Recipe> favoriteList = [];
 
-  Future<void> getData() async {
-    Response response = await get(Uri.parse('http://192.168.0.102:3000/recipe/list'));
+  Future<void> getData(int page) async {
+    Uri uri = Uri.parse('http://192.168.0.102:3000/recipe/list?page=$page&page_size=10');
+    Response response = await get(uri);
     List<dynamic> data = jsonDecode(response.body);
 
     for(var i = 0; i < data.length; i++) {
@@ -19,10 +20,10 @@ class RecipesController {
     }
   }
 
-  Future<void> getCreatedData(String ?token) async {
+  Future<void> getCreatedData(String ?token, int page) async {
     if (token == null) { return; }
 
-    Uri uri = Uri.parse('http://192.168.0.102:3000/recipe/created_list');
+    Uri uri = Uri.parse('http://192.168.0.102:3000/recipe/created_list?page=$page&page_size=10');
     Response response = await get(uri, headers: { 'Authorization': 'Bearer $token' });
     List<dynamic> data = jsonDecode(response.body);
 
@@ -33,10 +34,10 @@ class RecipesController {
     }
   }
 
-  Future<void> getFavoriteData(String ?token) async {
+  Future<void> getFavoriteData(String ?token, int page) async {
     if (token == null) { return; }
 
-    Uri uri = Uri.parse('http://192.168.0.102:3000/recipe/favorite_list');
+    Uri uri = Uri.parse('http://192.168.0.102:3000/recipe/favorite_list?page=$page&page_size=10');
     Response response = await get(uri, headers: { 'Authorization': 'Bearer $token' });
     List<dynamic> data = jsonDecode(response.body);
 
@@ -49,9 +50,9 @@ class RecipesController {
 
   Future<Recipe> setFavorite(Recipe recipe, bool flag, String ?token) async {
     Uri uri = Uri.http(
-        '192.168.0.102:3000',
-        '/recipe/${recipe.slug}/set_favorite',
-        { 'flag': flag.toString() }
+      '192.168.0.102:3000',
+      '/recipe/${recipe.slug}/set_favorite',
+      { 'flag': flag.toString() }
     );
     Response response = await post(uri, headers: { 'Authorization': 'Bearer $token' });
     Map data = jsonDecode(response.body);
