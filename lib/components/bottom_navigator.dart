@@ -15,8 +15,8 @@ class BottomNavigator extends StatelessWidget {
       currentIndex: currentIndex,
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
         BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favorite'),
-        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
       ],
       onTap: (index) {
         switch(index) {
@@ -24,9 +24,10 @@ class BottomNavigator extends StatelessWidget {
               .pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false); }
           break;
           case 1: { Navigator.of(context)
-              .pushNamedAndRemoveUntil('/favorite', (Route<dynamic> route) => false); }
+              .pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false); }
           break;
-          case 2: { Navigator.pushNamed(context, '/login'); }
+          case 2: { Navigator.of(context)
+              .pushNamedAndRemoveUntil('/favorite', (Route<dynamic> route) => false); }
           break;
           default: {}
           break;

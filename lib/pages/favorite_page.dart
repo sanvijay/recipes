@@ -66,7 +66,7 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: const BottomNavigator(currentIndex: 1,),
+      bottomNavigationBar: const BottomNavigator(currentIndex: 2,),
 
       body: isLoading ?
         const Center(child: Text("Loading...")) :

@@ -9,6 +9,7 @@ import 'package:recipes/models/recipe.dart';
 // Import components
 import 'package:recipes/components/recipe_card.dart';
 import 'package:recipes/components/bottom_navigator.dart';
+import 'package:recipes/components/left_drawer.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -39,6 +40,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: const BottomNavigator(currentIndex: 0,),
+      drawer: const LeftDrawer(),
       appBar: AppBar(
         title: const Text('Recipes'),
         centerTitle: true,

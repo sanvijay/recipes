@@ -26,4 +26,12 @@ class Auth {
     await pref.setString('user:email', decodedToken['user']['email']);
     await pref.setInt('user:id', decodedToken['user']['id']);
   }
+
+  Future<void> signOut() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    await pref.remove('auth:access_token');
+    await pref.remove('auth:refresh_token');
+    await pref.remove('user:email');
+    await pref.remove('user:id');
+  }
 }

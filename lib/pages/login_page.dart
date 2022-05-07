@@ -32,8 +32,7 @@ class _LoginPageState extends State<LoginPage> {
       final body = jsonDecode(response.body);
       Auth auth = Auth();
       auth.setAuthDetails(body['access_token'], body['refresh_token']);
-      Navigator.of(context)
-          .pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
+      Navigator.of(context).pushReplacementNamed('/');
     }
     else {
       ScaffoldMessenger.of(context)
@@ -47,7 +46,7 @@ class _LoginPageState extends State<LoginPage> {
 
     if (isLoggedIn) {
       Navigator.of(context)
-          .pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
+          .pushNamedAndRemoveUntil('/profile', (Route<dynamic> route) => false);
     }
   }
 

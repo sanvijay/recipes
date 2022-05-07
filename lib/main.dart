@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 // Import Pages
 import 'package:recipes/pages/home_page.dart';
 import 'package:recipes/pages/login_page.dart';
+import 'package:recipes/pages/profile_page.dart';
 import 'package:recipes/pages/recipe_page.dart';
 import 'package:recipes/pages/favorite_page.dart';
 import 'package:recipes/pages/add_new_recipe.dart';
@@ -16,6 +17,7 @@ void main() => runApp(MaterialApp(
     '/favorite': (context) => const FavoritePage(),
     '/add-new-recipe': (context) => const AddNewRecipePage(),
     '/login': (context) => const LoginPage(),
-    '/register': (context) => const RegisterPage()
+    '/register': (context) => const RegisterPage(),
+    '/profile': (context) => const ProfilePage(),
   },
 ));
