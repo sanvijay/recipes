@@ -16,6 +16,20 @@ class Auth {
     return token;
   }
 
+  Future<Map> currentUserDetails() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String? token = pref.getString('auth:access_token');
+    if(token == null) { return {}; }
+
+    String? email = pref.getString('user:email');
+    int? userId = pref.getInt('user:id');
+
+    return {
+      "email": email,
+      "userId": userId
+    };
+  }
+
   Future<void> setAuthDetails(String accessToken, String refreshToken) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     await pref.setString('auth:access_token', accessToken);

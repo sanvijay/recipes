@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Import controllers
 import 'package:recipes/controllers/recipes_controller.dart';
@@ -10,6 +11,9 @@ import 'package:recipes/models/recipe.dart';
 import 'package:recipes/components/recipe_card.dart';
 import 'package:recipes/components/bottom_navigator.dart';
 import 'package:recipes/components/left_drawer.dart';
+
+// Import Services
+import 'package:recipes/services/auth/auth.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -25,8 +29,11 @@ class _HomePageState extends State<HomePage> {
   int _page = 1;
   bool loadMorePage = true;
 
-  void getAllRecipes(page) async {
-    await recipesController.getData(page);
+  Auth auth = Auth();
+  Future<void> getAllRecipes(page) async {
+
+    String? token = await auth.accessToken();
+    await recipesController.getData(page, token ?? '');
     List<Recipe> allRecipes = recipesController.list;
     setState(() {
       this.allRecipes = allRecipes;
@@ -38,12 +45,12 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     getAllRecipes(_page);
 
-    _scrollController.addListener(() {
+    _scrollController.addListener(() async {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
         if (loadMorePage) {
           int oldListCount = allRecipes.length;
-          getAllRecipes(++_page);
+          await getAllRecipes(++_page);
           int newListCount = allRecipes.length;
 
           if (oldListCount == newListCount) {
@@ -52,6 +59,28 @@ class _HomePageState extends State<HomePage> {
         }
       }
     });
+  }
+
+  Widget recipeCardBuilder(MapEntry e) {
+    return RecipeCard(
+      recipe: e.value,
+      setFavorite: () async {
+        SharedPreferences pref = await SharedPreferences.getInstance();
+        String? token = pref.getString('auth:access_token');
+
+        if (token == null) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text("You need to login")));
+          return;
+        }
+
+        RecipesController recipesController = RecipesController();
+        Recipe updatedRecipe = await recipesController.setFavorite(e.value, !e.value.isFavorite, token);
+        setState(() {
+          allRecipes[e.key] = updatedRecipe;
+        });
+      }
+    );
   }
 
   @override
@@ -68,7 +97,7 @@ class _HomePageState extends State<HomePage> {
         const Center(child: Text("Loading...")) :
         ListView(
           controller: _scrollController,
-          children: allRecipes.map((recipe) => RecipeCard(recipe: recipe)).toList()
+          children: allRecipes.asMap().entries.map((recipeEntry) => recipeCardBuilder(recipeEntry)).toList(),
         )
     );
   }

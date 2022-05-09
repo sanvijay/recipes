@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // Import Services
 import 'package:recipes/services/auth/auth.dart';
@@ -20,7 +21,7 @@ class _LoginPageState extends State<LoginPage> {
   bool isLoggedIn = false;
 
   void login(String email, String password) async {
-    var response = await post(Uri.parse('http://192.168.0.102:3000/oauth/token'), body: {
+    var response = await post(Uri.parse('${dotenv.env['API_URL']}/oauth/token'), body: {
       "email": email,
       "password": password,
       "grant_type": "password",

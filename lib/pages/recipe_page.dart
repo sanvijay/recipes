@@ -7,6 +7,9 @@ import 'package:recipes/models/recipe.dart';
 // Import controllers
 import '../controllers/recipes_controller.dart';
 
+// Import Services
+import 'package:recipes/services/auth/auth.dart';
+
 class RecipePage extends StatefulWidget {
   const RecipePage({Key? key}) : super(key: key);
 
@@ -17,6 +20,7 @@ class RecipePage extends StatefulWidget {
 class _RecipePageState extends State<RecipePage> {
   Map data = {};
   Recipe? recipe;
+  Map currentUser = {};
 
   getRecipeDetails(String slug) async {
     if (recipe != null) return;
@@ -31,9 +35,23 @@ class _RecipePageState extends State<RecipePage> {
     });
   }
 
+  void setCurrentUser() async {
+    Auth auth = Auth();
+    currentUser = await auth.currentUserDetails();
+    setState(() {
+      currentUser = currentUser;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setCurrentUser();
+  }
+
   @override
   Widget build(BuildContext context) {
-    data = ModalRoute.of(context)?.settings?.arguments as Map;
+    data = ModalRoute.of(context)?.settings.arguments as Map;
     getRecipeDetails(data['slug']);
 
     return Scaffold(
@@ -42,8 +60,19 @@ class _RecipePageState extends State<RecipePage> {
         centerTitle: true,
         backgroundColor: Colors.redAccent,
         actions: <Widget>[
+          recipe != null && currentUser.isNotEmpty && recipe!.authorId == currentUser['userId'] ? GestureDetector(
+            child: const Icon(Icons.edit),
+            onTap: () {
+              Navigator.pushNamed(
+                context,
+                '/add-edit-recipe',
+                arguments: { 'slug': recipe?.slug }
+              );
+            },
+          ) : const SizedBox.shrink(),
+          const SizedBox(width: 20.0,),
           GestureDetector(
-            child: recipe != null && recipe!.isFavorite ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
+            child: recipe != null && recipe!.isFavorite ? const Icon(Icons.favorite) : const Icon(Icons.favorite_border),
             onTap: () async {
               SharedPreferences pref = await SharedPreferences.getInstance();
               String? token = pref.getString('auth:access_token');
@@ -113,8 +142,45 @@ class RecipeDetails extends StatelessWidget {
           padding: const EdgeInsets.all(10.0),
           child: Text(recipe?.description as String),
         ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.timer),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Text((recipe?.durationInMin.toString() as String) + ' minutes'),
+            ),
+          ],
+        ),
         const Divider(
           thickness: 2.0,
+        ),
+        Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.all(10.0),
+          child: const Text(
+            'Ingredients',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+            textAlign: TextAlign.left,
+          ),
+        ),
+        const Divider(
+          thickness: 2.0,
+        ),
+        Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.all(10.0),
+          child: const Text(
+            'Directions',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+            textAlign: TextAlign.left,
+          ),
         ),
       ],
     );

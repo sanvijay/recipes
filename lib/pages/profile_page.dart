@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 
-// Import Components
-import 'package:recipes/components/left_drawer.dart';
-
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
 
@@ -21,7 +18,6 @@ class _ProfilePageState extends State<ProfilePage> {
         centerTitle: true,
         backgroundColor: Colors.redAccent,
       ),
-      drawer: const LeftDrawer(),
       body: Container(
         padding: const EdgeInsets.only(left: 16, top: 25, right: 16),
         child: GestureDetector(

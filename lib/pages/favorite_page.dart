@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:recipes/components/login_message.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Import controllers
 import 'package:recipes/controllers/recipes_controller.dart';
@@ -49,7 +50,7 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
     });
   }
 
-  void getAllCreatedRecipes(page) async {
+  Future<void> getAllCreatedRecipes(page) async {
     Auth auth = Auth();
     String? token = await auth.accessToken();
     await recipesController.getCreatedData(token, page);
@@ -61,7 +62,7 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
     });
   }
 
-  void getAllFavoriteRecipes(page) async {
+  Future<void> getAllFavoriteRecipes(page) async {
     Auth auth = Auth();
     String? token = await auth.accessToken();
     await recipesController.getFavoriteData(token, page);
@@ -81,12 +82,12 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
     getAllFavoriteRecipes(_favoritePage);
     _tabController = TabController(vsync: this, length: 2);
 
-    _createdScrollController.addListener(() {
+    _createdScrollController.addListener(() async {
       if (_createdScrollController.position.pixels ==
           _createdScrollController.position.maxScrollExtent) {
         if (createdLoadMorePage) {
           int oldListCount = allCreatedRecipes.length;
-          getAllCreatedRecipes(++_createdPage);
+          await getAllCreatedRecipes(++_createdPage);
           int newListCount = allCreatedRecipes.length;
 
           if (oldListCount == newListCount) {
@@ -96,13 +97,12 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
       }
     });
 
-    _favoriteScrollController.addListener(() {
+    _favoriteScrollController.addListener(() async {
       if (_favoriteScrollController.position.pixels ==
           _favoriteScrollController.position.maxScrollExtent) {
-        print("This is end");
         if (favoriteLoadMorePage) {
           int oldListCount = allFavoriteRecipes.length;
-          getAllFavoriteRecipes(++_favoritePage);
+          await getAllFavoriteRecipes(++_favoritePage);
           int newListCount = allFavoriteRecipes.length;
 
           if (oldListCount == newListCount) {
@@ -113,6 +113,29 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
     });
   }
 
+  Widget recipeCardBuilder(MapEntry e, bool createdList) {
+    return RecipeCard(
+        recipe: e.value,
+        setFavorite: () async {
+          SharedPreferences pref = await SharedPreferences.getInstance();
+          String? token = pref.getString('auth:access_token');
+
+          if (token == null) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(const SnackBar(content: Text("You need to login")));
+            return;
+          }
+
+          RecipesController recipesController = RecipesController();
+          Recipe updatedRecipe = await recipesController.setFavorite(e.value, !e.value.isFavorite, token);
+          setState(() {
+            if (createdList) { allCreatedRecipes[e.key] = updatedRecipe; }
+            else { allFavoriteRecipes[e.key] = updatedRecipe; }
+          });
+        }
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -121,43 +144,45 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
       body: isLoading ?
         const Center(child: Text("Loading...")) :
         SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                TabBar(
-                  controller: _tabController,
-                  labelColor: Colors.black,
-                  unselectedLabelColor: Colors.grey,
-                  tabs: const [
-                    Tab(text: "Created",),
-                    Tab(text: "Favorite",),
-                  ],
-                ),
-                Expanded(
-                  child: Scaffold(
-                    floatingActionButton: FloatingActionButton(
-                      onPressed: () { Navigator.pushNamed(context, '/add-new-recipe'); },
-                      child: const Icon(Icons.add),
-                    ),
-                    body: TabBarView(
-                      controller: _tabController,
-                      children: [
-                        isLoggedIn ? ListView(
-                          controller: _createdScrollController,
-                          children: allCreatedRecipes.map((recipe) => RecipeCard(recipe: recipe)).toList()
-                        ) : const LoginMessage(),
-                        isLoggedIn ? ListView(
-                          controller: _favoriteScrollController,
-                          children: allFavoriteRecipes.map((recipe) => RecipeCard(recipe: recipe)).toList()
-                        ) : const LoginMessage(),
-                      ],
-                    ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              TabBar(
+                controller: _tabController,
+                labelColor: Colors.black,
+                unselectedLabelColor: Colors.grey,
+                tabs: const [
+                  Tab(text: "Created",),
+                  Tab(text: "Favorite",),
+                ],
+              ),
+              Expanded(
+                child: Scaffold(
+                  floatingActionButton: FloatingActionButton(
+                    onPressed: () {
+                      Navigator.pushNamed(
+                        context, '/add-edit-recipe',
+                        arguments: {}
+                      );
+                    },
+                    child: const Icon(Icons.add),
+                  ),
+                  body: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      isLoggedIn ? ListView(
+                        controller: _createdScrollController,
+                        children: allCreatedRecipes.asMap().entries.map((recipeEntry) => recipeCardBuilder(recipeEntry, true)).toList(),
+                      ) : const LoginMessage(),
+                      isLoggedIn ? ListView(
+                        controller: _favoriteScrollController,
+                        children: allFavoriteRecipes.asMap().entries.map((recipeEntry) => recipeCardBuilder(recipeEntry, false)).toList(),
+                      ) : const LoginMessage(),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         )
     );
