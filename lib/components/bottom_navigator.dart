@@ -20,14 +20,26 @@ class BottomNavigator extends StatelessWidget {
       ],
       onTap: (index) {
         switch(index) {
-          case 0: { Navigator.of(context)
-              .pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false); }
+          case 0: {
+            if (ModalRoute.of(context)?.settings.name != '/') {
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/', (Route<dynamic> route) => false);
+            }
+          }
           break;
-          case 1: { Navigator.of(context)
-              .pushNamedAndRemoveUntil('/search', (Route<dynamic> route) => false); }
+          case 1: {
+            if (ModalRoute.of(context)?.settings.name != '/search') {
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/search', (Route<dynamic> route) => false);
+            }
+          }
           break;
-          case 2: { Navigator.of(context)
-              .pushNamedAndRemoveUntil('/favorite', (Route<dynamic> route) => false); }
+          case 2: {
+              if (ModalRoute.of(context)?.settings.name != '/favorite') {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    '/favorite', (Route<dynamic> route) => false);
+              }
+            }
           break;
           default: {}
           break;

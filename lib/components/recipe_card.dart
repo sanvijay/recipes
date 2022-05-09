@@ -37,7 +37,31 @@ class RecipeCard extends StatelessWidget {
                       Image.network(
                         recipe.imageUrl as String,
                         fit: BoxFit.fitWidth,
-                      )
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Container(
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.timer, color: Colors.white),
+                                  Text(
+                                    '${recipe.durationInMin} minutes',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              padding: const EdgeInsets.all(8.0),
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                   Padding(

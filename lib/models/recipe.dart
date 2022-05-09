@@ -43,7 +43,13 @@ class Recipe {
 
   void saveToCloud(String token) async {
     String url = slug == '' ? '${dotenv.env['API_URL']}/recipe/new' : '${dotenv.env['API_URL']}/recipe/$slug/update';
-    Uri uri = Uri.parse(url + '?title=$title&description=$description&image_url=$imageUrl&duration_in_minutes=$durationInMin');
+    Uri baseUri = Uri.parse(url);
+    Uri uri = baseUri.replace(queryParameters: {
+      'title': title,
+      'description': description,
+      'image_url': imageUrl,
+      'duration_in_minutes': durationInMin.toString()
+    });
     Response response = await post(uri, headers: { 'Authorization': 'Bearer $token' });
     Map data = jsonDecode(response.body);
     slug = data['slug'];

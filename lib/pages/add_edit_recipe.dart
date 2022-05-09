@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 // Import components
 import 'package:recipes/components/login_message.dart';
@@ -159,6 +160,7 @@ class _AddEditRecipePagePageState extends State<AddEditRecipePage> {
             children: [
               TextField(
                 controller: titleCntl,
+                maxLength: 24,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   hintText: 'Enter Ingredient',
@@ -187,6 +189,9 @@ class _AddEditRecipePagePageState extends State<AddEditRecipePage> {
 
                         values['ingredients'][index] = currentValue;
                       },
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
+                      ],
                     ),
                     flex: 1,
                   ),
@@ -251,6 +256,7 @@ class _AddEditRecipePagePageState extends State<AddEditRecipePage> {
               TextField(
                 controller: valueCntl,
                 maxLines: 3,
+                maxLength: 256,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   hintText: 'Enter Instruction',
@@ -279,6 +285,9 @@ class _AddEditRecipePagePageState extends State<AddEditRecipePage> {
 
                         values['instructions'][index] = currentValue;
                       },
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
+                      ],
                     ),
                     flex: 1,
                   ),
@@ -349,6 +358,7 @@ class _AddEditRecipePagePageState extends State<AddEditRecipePage> {
                 },
                 maxLines: 2,
                 autofocus: true,
+                maxLength: 72,
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
                   hintText: 'Enter title',
@@ -365,7 +375,7 @@ class _AddEditRecipePagePageState extends State<AddEditRecipePage> {
                   values['description'] = text;
                 },
                 maxLines: 3,
-                autofocus: true,
+                maxLength: 256,
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
                   hintText: 'Enter description',
@@ -381,7 +391,7 @@ class _AddEditRecipePagePageState extends State<AddEditRecipePage> {
                   setState(() { errors['image_url'] = null; });
                   values['image_url'] = text;
                 },
-                autofocus: true,
+                maxLength: 256,
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
                   hintText: 'Enter Image Url',
@@ -398,7 +408,9 @@ class _AddEditRecipePagePageState extends State<AddEditRecipePage> {
                   setState(() { errors['duration_in_minutes'] = null; });
                   values['duration_in_minutes'] = text;
                 },
-                autofocus: true,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly
+                ],
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
                   hintText: 'Enter Duration in minutes',

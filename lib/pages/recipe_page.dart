@@ -123,20 +123,15 @@ class RecipeDetails extends StatelessWidget {
           recipe?.imageUrl as String,
           fit: BoxFit.fitWidth,
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Text(
-                recipe?.title as String,
-                style: const TextStyle(
-                  fontSize: 28.0,
-                  letterSpacing: 2.0
-                ),
-              ),
-            )
-          ],
+        Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Text(
+            recipe?.title as String,
+            style: const TextStyle(
+              fontSize: 28.0,
+              letterSpacing: 2.0,
+            ),
+          ),
         ),
         Padding(
           padding: const EdgeInsets.all(10.0),

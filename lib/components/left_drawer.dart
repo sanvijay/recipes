@@ -49,7 +49,7 @@ class _LeftDrawerState extends State<LeftDrawer> {
         leading: const Icon(Icons.settings),
         title: const Text('Settings'),
         onTap: () {
-          Navigator.pop(context);
+          Navigator.pushNamed(context, '/settings');
         },
       ),
     );
