@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -22,8 +23,8 @@ class _RecipePageState extends State<RecipePage> {
   Recipe? recipe;
   Map currentUser = {};
 
-  getRecipeDetails(String slug) async {
-    if (recipe != null) return;
+  getRecipeDetails(String slug, { bool force = false }) async {
+    if (recipe != null && !force) return;
 
     SharedPreferences pref = await SharedPreferences.getInstance();
     String? token = pref.getString('auth:access_token');
@@ -55,6 +56,15 @@ class _RecipePageState extends State<RecipePage> {
     getRecipeDetails(data['slug']);
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text("New feature coming soon!")));
+        },
+        backgroundColor: Colors.redAccent,
+        child: const Icon(Icons.play_arrow),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       appBar: AppBar(
         title: const Text('Recipes'),
         centerTitle: true,
@@ -102,7 +112,13 @@ class _RecipePageState extends State<RecipePage> {
       ),
       body: recipe?.title == null ?
         const Center(child: Text("Loading...")) :
-        SingleChildScrollView(child: RecipeDetails(recipe: recipe))
+        RefreshIndicator(
+          onRefresh: () async {
+            await Future.delayed(const Duration(seconds: 2));
+            getRecipeDetails(data['slug'], force: true);
+          },
+          child: SingleChildScrollView(child: RecipeDetails(recipe: recipe))
+        )
     );
   }
 }
@@ -162,6 +178,17 @@ class RecipeDetails extends StatelessWidget {
             textAlign: TextAlign.left,
           ),
         ),
+        Container(
+          padding: const EdgeInsets.all(10.0),
+          child: Table(
+            columnWidths: const <int, TableColumnWidth>{
+              0: FlexColumnWidth(4.0),
+              1: FlexColumnWidth(1.0),
+              2: FlexColumnWidth(1.0),
+            },
+            children: recipe!.ingredients!.map((ing) => ingredientTableRow(ing)).toList(),
+          ),
+        ),
         const Divider(
           thickness: 2.0,
         ),
@@ -177,7 +204,36 @@ class RecipeDetails extends StatelessWidget {
             textAlign: TextAlign.left,
           ),
         ),
+        Container(
+          padding: const EdgeInsets.all(10.0),
+          width: MediaQuery.of(context).size.width,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: recipe!.instructions!.map((ins) => instructionStep(ins)).toList(),
+          ),
+        ),
+        const SizedBox(height: 60.0,)
       ],
+    );
+  }
+
+  TableRow ingredientTableRow(Map ingredient) {
+    return TableRow(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+            child: Text(ingredient['title'], textAlign: TextAlign.left,),
+          ),
+          Text(ingredient['quantity'].toString(), textAlign: TextAlign.left,),
+          Text(ingredient['unit'], textAlign: TextAlign.left,),
+        ]
+    );
+  }
+
+  Widget instructionStep(Map instruction) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Text("Step ${instruction['order'] + 1}: ${instruction['value']}", textAlign: TextAlign.left,),
     );
   }
 }

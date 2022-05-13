@@ -10,6 +10,7 @@ import 'package:recipes/pages/favorite_page.dart';
 import 'package:recipes/pages/add_edit_recipe.dart';
 import 'package:recipes/pages/register_page.dart';
 import 'package:recipes/pages/search_page.dart';
+import 'package:recipes/pages/settings_page.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
@@ -26,6 +27,7 @@ void main() async {
         '/register': (context) => const RegisterPage(),
         '/profile': (context) => const ProfilePage(),
         '/search': (context) => const SearchPage(),
+        '/settings': (context) => const SettingsPage()
       },
     )
   );

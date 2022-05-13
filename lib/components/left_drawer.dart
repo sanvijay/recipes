@@ -24,35 +24,39 @@ class _LeftDrawerState extends State<LeftDrawer> {
     isLoggedIn = await auth.isLoggedIn();
 
     drawerList.add(
-      const DrawerHeader(
+      DrawerHeader(
         decoration: BoxDecoration(
-          color: Colors.blue,
+          image: DecorationImage(image: NetworkImage('https://upload.wikimedia.org/wikipedia/commons/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg')),
+          color: Colors.redAccent,
         ),
-        child: Text('Drawer Header'),
+        child: Container(
+          padding: EdgeInsets.all(10),
+          child: Text('Drawer Header', textAlign: TextAlign.center,)
+        ),
       ),
     );
-
-    if (isLoggedIn) {
-      drawerList.add(
-        ListTile(
-          leading: const Icon(Icons.person),
-          title: const Text('Profile'),
-          onTap: () {
-            Navigator.pushNamed(context, '/profile');
-          },
-        )
-      );
-    }
-
-    drawerList.add(
-      ListTile(
-        leading: const Icon(Icons.settings),
-        title: const Text('Settings'),
-        onTap: () {
-          Navigator.pushNamed(context, '/settings');
-        },
-      ),
-    );
+    //
+    // if (isLoggedIn) {
+    //   drawerList.add(
+    //     ListTile(
+    //       leading: const Icon(Icons.person),
+    //       title: const Text('Profile'),
+    //       onTap: () {
+    //         Navigator.pushNamed(context, '/profile');
+    //       },
+    //     )
+    //   );
+    // }
+    //
+    // drawerList.add(
+    //   ListTile(
+    //     leading: const Icon(Icons.settings),
+    //     title: const Text('Settings'),
+    //     onTap: () {
+    //       Navigator.pushNamed(context, '/settings');
+    //     },
+    //   ),
+    // );
 
     if (!isLoggedIn) {
       drawerList.add(

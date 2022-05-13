@@ -15,10 +15,10 @@ class AddEditRecipePage extends StatefulWidget {
   const AddEditRecipePage({Key? key}) : super(key: key);
 
   @override
-  State<AddEditRecipePage> createState() => _AddEditRecipePagePageState();
+  State<AddEditRecipePage> createState() => _AddEditRecipePageState();
 }
 
-class _AddEditRecipePagePageState extends State<AddEditRecipePage> {
+class _AddEditRecipePageState extends State<AddEditRecipePage> {
   List<String> fields = ['title', 'description', 'image_url', 'duration_in_minutes'];
   Map values = {};
   Map errors = {};
@@ -54,8 +54,8 @@ class _AddEditRecipePagePageState extends State<AddEditRecipePage> {
       values['image_url'] = recipe?.imageUrl;
       values['slug'] = recipe?.slug;
       values['duration_in_minutes'] = recipe?.durationInMin.toString();
-      values['ingredients'] = [{}];
-      values['instructions'] = [{}];
+      values['ingredients'] = recipe?.ingredients ?? [];
+      values['instructions'] = recipe?.instructions ?? [];
     });
   }
 
@@ -147,7 +147,7 @@ class _AddEditRecipePagePageState extends State<AddEditRecipePage> {
     TextEditingController unitCntl = TextEditingController();
 
     titleCntl.text = value['title'] ?? '';
-    quantityCntl.text = value['quantity'] ?? '';
+    quantityCntl.text = value['quantity'] == null ? '' : value['quantity'].toString();
     unitCntl.text = value['unit'] ?? '';
 
     return Padding(
@@ -242,8 +242,9 @@ class _AddEditRecipePagePageState extends State<AddEditRecipePage> {
     TextEditingController valueCntl = TextEditingController();
     TextEditingController durationCntl = TextEditingController();
 
+    value['order'] = index;
     valueCntl.text = value['value'] ?? '';
-    durationCntl.text = value['duration'] ?? '';
+    durationCntl.text = value['duration'] == null ? '' : value['duration'].toString();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),

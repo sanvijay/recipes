@@ -17,13 +17,7 @@ class SearchPage extends StatelessWidget {
           centerTitle: true,
           backgroundColor: Colors.redAccent,
         ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: const [
-            Text('Search Page.')
-          ],
-        )
+        body: const Center(child: Text("Coming Soon!"))
     );
   }
 }

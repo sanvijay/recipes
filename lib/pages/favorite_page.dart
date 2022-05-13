@@ -140,7 +140,6 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: const BottomNavigator(currentIndex: 2,),
-
       body: isLoading ?
         const Center(child: Text("Loading...")) :
         SafeArea(
@@ -148,6 +147,7 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               TabBar(
+                indicatorColor: Colors.redAccent,
                 controller: _tabController,
                 labelColor: Colors.black,
                 unselectedLabelColor: Colors.grey,
@@ -165,6 +165,7 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
                         arguments: {}
                       );
                     },
+                    backgroundColor: Colors.redAccent,
                     child: const Icon(Icons.add),
                   ),
                   body: TabBarView(

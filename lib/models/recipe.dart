@@ -11,6 +11,8 @@ class Recipe {
   int? authorId;
   String? authorName;
   int? durationInMin;
+  List? ingredients;
+  List? instructions;
 
   Recipe({ required this.slug });
 
@@ -26,6 +28,8 @@ class Recipe {
     durationInMin = data['duration_in_minutes'];
     authorId = data['author']['id'];
     authorName = data['author']['first_name'] + ' ' + data['author']['last_name'];
+    ingredients = data['ingredient_details'];
+    instructions = data['instructions'];
   }
 
   void assignValues(String description, String title, String imageUrl, List ingredients, List instructions, bool isFavorite, int durationInMin) {
@@ -34,6 +38,25 @@ class Recipe {
     this.imageUrl = imageUrl;
     this.isFavorite = isFavorite;
     this.durationInMin = durationInMin;
+
+    var mappedIngredients = ingredients.toList().map((e) {
+      Map<String, String> convertedIng = {};
+      e.forEach((k,v) {
+        convertedIng['"' + k.toString() + '"'] = '"' + v.toString() + '"';
+      });
+      return convertedIng;
+    }).toList();
+
+    var mappedInstructions = instructions.toList().map((e) {
+      Map<String, String> convertedIns = {};
+      e.forEach((k,v) {
+        convertedIns['"' + k.toString() + '"'] = '"' + v.toString() + '"';
+      });
+      return convertedIns;
+    }).toList();
+
+    this.ingredients = mappedIngredients;
+    this.instructions = mappedInstructions;
   }
 
   void assignAuthor(int authorId, String authorName) {
@@ -48,7 +71,9 @@ class Recipe {
       'title': title,
       'description': description,
       'image_url': imageUrl,
-      'duration_in_minutes': durationInMin.toString()
+      'duration_in_minutes': durationInMin.toString(),
+      'ingredient_details': ingredients.toString(),
+      'instructions': instructions.toString(),
     });
     Response response = await post(uri, headers: { 'Authorization': 'Bearer $token' });
     Map data = jsonDecode(response.body);
