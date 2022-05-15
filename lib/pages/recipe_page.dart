@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,7 +8,8 @@ import 'package:recipes/models/recipe.dart';
 import '../controllers/recipes_controller.dart';
 
 // Import Services
-import 'package:recipes/services/auth/auth.dart';
+import 'package:recipes/services/auth_service.dart';
+import 'package:recipes/services/share_service.dart';
 
 class RecipePage extends StatefulWidget {
   const RecipePage({Key? key}) : super(key: key);
@@ -37,7 +37,7 @@ class _RecipePageState extends State<RecipePage> {
   }
 
   void setCurrentUser() async {
-    Auth auth = Auth();
+    AuthService auth = AuthService();
     currentUser = await auth.currentUserDetails();
     setState(() {
       currentUser = currentUser;
@@ -104,7 +104,13 @@ class _RecipePageState extends State<RecipePage> {
           GestureDetector(
             child: const Icon(Icons.share),
             onTap: () {
+              bool sameUser = currentUser.isNotEmpty && recipe!.authorId == currentUser['userId'];
+              String appUrl = 'https://play.google.com/store/apps/details?id=com.fireflies.kuky';
 
+              String shareText = sameUser ? '${recipe!.title}\n\nThis is my recipe available in Ku-Ky app.\n\n$appUrl' : '${recipe!.title}\n\nI found this recipe on Ku-Ky.\n\n$appUrl';
+
+              ShareService shareService = ShareService();
+              shareService.share(recipe?.imageUrl ?? '', shareText);
             },
           ),
           const SizedBox(width: 30.0,),

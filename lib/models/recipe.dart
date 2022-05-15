@@ -14,6 +14,8 @@ class Recipe {
   List? ingredients;
   List? instructions;
 
+  final jsonEncoder = const JsonEncoder();
+
   Recipe({ required this.slug });
 
   Future<void> setDetails(String? token) async {
@@ -38,25 +40,8 @@ class Recipe {
     this.imageUrl = imageUrl;
     this.isFavorite = isFavorite;
     this.durationInMin = durationInMin;
-
-    var mappedIngredients = ingredients.toList().map((e) {
-      Map<String, String> convertedIng = {};
-      e.forEach((k,v) {
-        convertedIng['"' + k.toString() + '"'] = '"' + v.toString() + '"';
-      });
-      return convertedIng;
-    }).toList();
-
-    var mappedInstructions = instructions.toList().map((e) {
-      Map<String, String> convertedIns = {};
-      e.forEach((k,v) {
-        convertedIns['"' + k.toString() + '"'] = '"' + v.toString() + '"';
-      });
-      return convertedIns;
-    }).toList();
-
-    this.ingredients = mappedIngredients;
-    this.instructions = mappedInstructions;
+    this.ingredients = ingredients;
+    this.instructions = instructions;
   }
 
   void assignAuthor(int authorId, String authorName) {
@@ -72,10 +57,10 @@ class Recipe {
       'description': description,
       'image_url': imageUrl,
       'duration_in_minutes': durationInMin.toString(),
-      'ingredient_details': ingredients.toString(),
-      'instructions': instructions.toString(),
+      'ingredient_details': jsonEncoder.convert(ingredients),
+      'instructions': jsonEncoder.convert(instructions),
     });
-    Response response = await post(uri, headers: { 'Authorization': 'Bearer $token' });
+    Response response = await post(uri, headers: { 'Authorization': 'Bearer $token', 'Content-type': 'application/json' });
     Map data = jsonDecode(response.body);
     slug = data['slug'];
   }

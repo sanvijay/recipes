@@ -6,11 +6,13 @@ import 'package:recipes/models/recipe.dart';
 class RecipeCard extends StatelessWidget {
   final Recipe recipe;
   final VoidCallback setFavorite;
+  final VoidCallback share;
 
   const RecipeCard({
     Key? key,
     required this.recipe,
     required this.setFavorite,
+    required this.share,
   }) : super(key: key);
 
   @override
@@ -97,7 +99,10 @@ class RecipeCard extends StatelessWidget {
                         child: recipe.isFavorite ? const Icon(Icons.favorite) : const Icon(Icons.favorite_border)
                       ),
                       const SizedBox(width: 10.0,),
-                      const Icon(Icons.share),
+                      GestureDetector(
+                          onTap: share,
+                          child: const Icon(Icons.share)
+                      ),
                     ],
                   ),
                   GestureDetector(

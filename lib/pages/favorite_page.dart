@@ -6,7 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:recipes/controllers/recipes_controller.dart';
 
 // Import services
-import 'package:recipes/services/auth/auth.dart';
+import 'package:recipes/services/auth_service.dart';
+import 'package:recipes/services/share_service.dart';
 
 // Import models
 import 'package:recipes/models/recipe.dart';
@@ -26,6 +27,7 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
   List<Recipe> allCreatedRecipes = [];
   List<Recipe> allFavoriteRecipes = [];
   RecipesController recipesController = RecipesController();
+  AuthService auth = AuthService();
 
   final ScrollController _createdScrollController = ScrollController();
   final ScrollController _favoriteScrollController = ScrollController();
@@ -42,7 +44,6 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
   bool isLoggedIn = false;
 
   void setLoggedInDetails()async {
-    Auth auth = Auth();
     isLoggedIn = await auth.isLoggedIn();
 
     setState(() {
@@ -51,10 +52,13 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
   }
 
   Future<void> getAllCreatedRecipes(page) async {
-    Auth auth = Auth();
     String? token = await auth.accessToken();
     await recipesController.getCreatedData(token, page);
     List<Recipe> allCreatedRecipes = recipesController.createdList;
+
+    if (allCreatedRecipes.length <= 3) {
+      createdLoadMorePage = false;
+    }
 
     setState(() {
       this.allCreatedRecipes = allCreatedRecipes;
@@ -63,10 +67,13 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
   }
 
   Future<void> getAllFavoriteRecipes(page) async {
-    Auth auth = Auth();
     String? token = await auth.accessToken();
     await recipesController.getFavoriteData(token, page);
     List<Recipe> allFavoriteRecipes = recipesController.favoriteList;
+
+    if (allFavoriteRecipes.length <= 3) {
+      favoriteLoadMorePage = false;
+    }
 
     setState(() {
       this.allFavoriteRecipes = allFavoriteRecipes;
@@ -116,6 +123,16 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
   Widget recipeCardBuilder(MapEntry e, bool createdList) {
     return RecipeCard(
         recipe: e.value,
+        share: () async {
+          Map currentUser = await auth.currentUserDetails();
+          bool sameUser = currentUser.isNotEmpty && e.value!.authorId == currentUser['userId'];
+          String appUrl = 'https://play.google.com/store/apps/details?id=com.fireflies.kuky';
+
+          String shareText = sameUser ? '${e.value!.title}\n\nThis is my recipe available in Ku-Ky app.\n\n$appUrl' : '${e.value!.title}\n\nI found this recipe on Ku-Ky app.\n\n$appUrl';
+
+          ShareService shareService = ShareService();
+          shareService.share(e.value?.imageUrl ?? '', shareText);
+        },
         setFavorite: () async {
           SharedPreferences pref = await SharedPreferences.getInstance();
           String? token = pref.getString('auth:access_token');
@@ -152,8 +169,8 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
                 labelColor: Colors.black,
                 unselectedLabelColor: Colors.grey,
                 tabs: const [
-                  Tab(text: "Created",),
-                  Tab(text: "Favorite",),
+                  Tab(text: "My Recipes",),
+                  Tab(text: "My Favorites",),
                 ],
               ),
               Expanded(
@@ -173,11 +190,75 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
                     children: [
                       isLoggedIn ? ListView(
                         controller: _createdScrollController,
-                        children: allCreatedRecipes.asMap().entries.map((recipeEntry) => recipeCardBuilder(recipeEntry, true)).toList(),
+                        children: [
+                          ...allCreatedRecipes.asMap().entries.map((recipeEntry) => recipeCardBuilder(recipeEntry, true)).toList(),
+                          allCreatedRecipes.isEmpty ? Padding(
+                              padding: const EdgeInsets.all(24.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text('I know you are a great chef. Add your recipe.'),
+                                  TextButton(
+                                      onPressed: () { Navigator.pushNamed(context, '/add-edit-recipe', arguments: {}); },
+                                      child: const Text(
+                                        'Add new recipe',
+                                        style: TextStyle(
+                                          decoration: TextDecoration.underline,
+                                          color: Colors.black,
+                                          fontSize: 18,
+                                        ),
+                                      )
+                                  ),
+                                ],
+                              )
+                          ) : Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: createdLoadMorePage ? const Text("Cooking more recipes...", textAlign: TextAlign.center,) : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text('You reached the end. Do you want to add your magic recipe?'),
+                                TextButton(
+                                    onPressed: () {
+                                      Navigator.pushNamed(context, '/add-edit-recipe',
+                                          arguments: {}
+                                      );
+                                    },
+                                    child: const Text(
+                                      'Add your recipe',
+                                      style: TextStyle(
+                                        decoration: TextDecoration.underline,
+                                        color: Colors.black,
+                                        fontSize: 18,
+                                      ),
+                                    )
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
                       ) : const LoginMessage(),
                       isLoggedIn ? ListView(
                         controller: _favoriteScrollController,
-                        children: allFavoriteRecipes.asMap().entries.map((recipeEntry) => recipeCardBuilder(recipeEntry, false)).toList(),
+                        children: [
+                          ...allFavoriteRecipes.asMap().entries.map((recipeEntry) => recipeCardBuilder(recipeEntry, false)).toList(),
+                          allFavoriteRecipes.isEmpty ? Padding(
+                              padding: const EdgeInsets.all(24.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Text("Your favorite recipes will show here",),
+                                ],
+                              )
+                          ) : Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: favoriteLoadMorePage ? const Text("Cooking more recipes...", textAlign: TextAlign.center,) : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Text('You reached the end.'),
+                              ],
+                            ),
+                          )
+                        ],
                       ) : const LoginMessage(),
                     ],
                   ),

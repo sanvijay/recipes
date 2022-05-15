@@ -1,4 +1,4 @@
-package com.recipes.firefliesstudio.recipes
+package com.fireflies.kuky
 
 import io.flutter.embedding.android.FlutterActivity
 

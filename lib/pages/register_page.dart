@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // Import Services
-import 'package:recipes/services/auth/auth.dart';
+import 'package:recipes/services/auth_service.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -13,13 +17,46 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   bool isLoggedIn = false;
 
+  String? email;
+  String? password;
+  String? firstName;
+  String? lastName;
+
   void setLoggedInDetails()async {
-    Auth auth = Auth();
+    AuthService auth = AuthService();
     isLoggedIn = await auth.isLoggedIn();
 
     if (isLoggedIn) {
       Navigator.pushReplacementNamed(context, '/');
     }
+  }
+  void register(String firstName, String lastName, String email, String password) async {
+    var resBody = {};
+    resBody["email"] = email;
+    resBody["password"] = password;
+    resBody["password_confirmation"] = password;
+    resBody["first_name"] = firstName;
+    resBody["last_name"] = lastName;
+    var user = {};
+    user["user"] = resBody;
+    String str = jsonEncode(user);
+
+    try {
+      var response = await post(Uri.parse('${dotenv.env['API_URL']}/users'),
+          headers: { 'Content-type': 'application/json' },
+          body: str);
+
+      if (response.statusCode == 200) {
+        Navigator.of(context).pushReplacementNamed('/login');
+      }
+      else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("Some error occurred!")));
+      }
+    } catch (e) {
+      // Log error
+    }
+
   }
 
   @override
@@ -64,6 +101,9 @@ class _RegisterPageState extends State<RegisterPage> {
                         children: [
                           TextField(
                             style: const TextStyle(color: Colors.white),
+                            onChanged: (firstName) {
+                              this.firstName = firstName;
+                            },
                             decoration: InputDecoration(
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
@@ -77,7 +117,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   color: Colors.black,
                                 ),
                               ),
-                              hintText: "Name",
+                              hintText: "First Name",
                               hintStyle: const TextStyle(color: Colors.white),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
@@ -89,6 +129,37 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           TextField(
                             style: const TextStyle(color: Colors.white),
+                            onChanged: (lastName) {
+                              this.lastName = lastName;
+                            },
+                            decoration: InputDecoration(
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: const BorderSide(
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                hintText: "Last Name",
+                                hintStyle: const TextStyle(color: Colors.white),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                )
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 30,
+                          ),
+                          TextField(
+                            style: const TextStyle(color: Colors.white),
+                            onChanged: (email) {
+                              this.email = email;
+                            },
                             decoration: InputDecoration(
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
@@ -114,6 +185,9 @@ class _RegisterPageState extends State<RegisterPage> {
                           TextField(
                             style: const TextStyle(color: Colors.white),
                             obscureText: true,
+                            onChanged: (password) {
+                              this.password = password;
+                            },
                             decoration: InputDecoration(
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
@@ -151,11 +225,19 @@ class _RegisterPageState extends State<RegisterPage> {
                                 radius: 30,
                                 backgroundColor: const Color(0xff4c505b),
                                 child: IconButton(
-                                    color: Colors.white,
-                                    onPressed: () {},
-                                    icon: const Icon(
-                                      Icons.arrow_forward,
-                                    )),
+                                  color: Colors.white,
+                                  onPressed: () {
+                                    if (firstName == null || firstName == '' || lastName == null || lastName == '' || email == null || email == '' || password == null || password == '') {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(const SnackBar(content: Text("Please enter all details")));
+                                      return;
+                                    }
+                                    register(firstName!, lastName!, email!, password!);
+                                  },
+                                  icon: const Icon(
+                                    Icons.arrow_forward,
+                                  )
+                                ),
                               )
                             ],
                           ),

@@ -13,7 +13,8 @@ import 'package:recipes/components/bottom_navigator.dart';
 import 'package:recipes/components/left_drawer.dart';
 
 // Import Services
-import 'package:recipes/services/auth/auth.dart';
+import 'package:recipes/services/auth_service.dart';
+import 'package:recipes/services/share_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -29,7 +30,7 @@ class _HomePageState extends State<HomePage> {
   int _page = 1;
   bool loadMorePage = true;
 
-  Auth auth = Auth();
+  AuthService auth = AuthService();
   Future<void> getAllRecipes(page) async {
 
     String? token = await auth.accessToken();
@@ -64,6 +65,16 @@ class _HomePageState extends State<HomePage> {
   Widget recipeCardBuilder(MapEntry e) {
     return RecipeCard(
       recipe: e.value,
+      share: () async {
+        Map currentUser = await auth.currentUserDetails();
+        bool sameUser = currentUser.isNotEmpty && e.value!.authorId == currentUser['userId'];
+        String appUrl = 'https://play.google.com/store/apps/details?id=com.fireflies.kuky';
+
+        String shareText = sameUser ? '${e.value!.title}\n\nThis is my recipe available in Ku-Ky app.\n\n$appUrl' : '${e.value!.title}\n\nI found this recipe on Ku-Ky.\n\n$appUrl';
+
+        ShareService shareService = ShareService();
+        shareService.share(e.value?.imageUrl ?? '', shareText);
+      },
       setFavorite: () async {
         SharedPreferences pref = await SharedPreferences.getInstance();
         String? token = pref.getString('auth:access_token');
@@ -97,7 +108,29 @@ class _HomePageState extends State<HomePage> {
         const Center(child: Text("Loading...")) :
         ListView(
           controller: _scrollController,
-          children: allRecipes.asMap().entries.map((recipeEntry) => recipeCardBuilder(recipeEntry)).toList(),
+          children: [
+            ...allRecipes.asMap().entries.map((recipeEntry) => recipeCardBuilder(recipeEntry)).toList(),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: loadMorePage ? const Text("Cooking more recipes...", textAlign: TextAlign.center,) : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('You reached the end. Do you want to add your magic recipe?'),
+                  TextButton(
+                      onPressed: () { Navigator.pushNamed(context, '/add-edit-recipe', arguments: {}); },
+                      child: const Text(
+                        'Add your recipe',
+                        style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          color: Colors.black,
+                          fontSize: 18,
+                        ),
+                      )
+                  ),
+                ],
+              ),
+            )
+          ],
         )
     );
   }

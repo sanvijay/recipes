@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:recipes/components/login_message.dart';
 
 // Import services
-import 'package:recipes/services/auth/auth.dart';
+import 'package:recipes/services/auth_service.dart';
 
 // Import models
 import 'package:recipes/models/recipe.dart';
@@ -60,7 +60,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
   }
 
   void setLoggedInDetails()async {
-    Auth auth = Auth();
+    AuthService auth = AuthService();
     isLoggedIn = await auth.isLoggedIn();
 
     setState(() {
@@ -243,6 +243,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
     TextEditingController durationCntl = TextEditingController();
 
     value['order'] = index;
+    value['unit'] = values['instructions'][index]['unit'] ?? 'min';
     valueCntl.text = value['value'] ?? '';
     durationCntl.text = value['duration'] == null ? '' : value['duration'].toString();
 

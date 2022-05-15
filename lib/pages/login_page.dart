@@ -5,7 +5,7 @@ import 'package:http/http.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // Import Services
-import 'package:recipes/services/auth/auth.dart';
+import 'package:recipes/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -25,13 +25,13 @@ class _LoginPageState extends State<LoginPage> {
       "email": email,
       "password": password,
       "grant_type": "password",
-      "client_id": "M6UgtxJaOaH7k7LWMCzHHcFyU9jds8D0NuLhGwFIpJw",
-      "client_secret": "65YNBsr1MqqqYCBg-LE1_W0daHqeSvwcagZRkw2wIUU"
+      "client_id": dotenv.env['API_CLIENT_ID'],
+      "client_secret": dotenv.env['API_CLIENT_SECRET'],
     });
 
     if (response.statusCode == 200) {
       final body = jsonDecode(response.body);
-      Auth auth = Auth();
+      AuthService auth = AuthService();
       auth.setAuthDetails(body['access_token'], body['refresh_token']);
       Navigator.of(context).pushReplacementNamed('/');
     }
@@ -42,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void setLoggedInDetails()async {
-    Auth auth = Auth();
+    AuthService auth = AuthService();
     isLoggedIn = await auth.isLoggedIn();
 
     if (isLoggedIn) {
@@ -135,18 +135,19 @@ class _LoginPageState extends State<LoginPage> {
                                 radius: 30,
                                 backgroundColor: const Color(0xff4c505b),
                                 child: IconButton(
-                                    color: Colors.white,
-                                    onPressed: () {
-                                      if (email == null || email == '' || password == null || password == '') {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(const SnackBar(content: Text("Please enter email and password")));
-                                        return;
-                                      }
-                                      login(email!, password!);
-                                    },
-                                    icon: const Icon(
-                                      Icons.arrow_forward,
-                                    )),
+                                  color: Colors.white,
+                                  onPressed: () {
+                                    if (email == null || email == '' || password == null || password == '') {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(const SnackBar(content: Text("Please enter email and password")));
+                                      return;
+                                    }
+                                    login(email!, password!);
+                                  },
+                                  icon: const Icon(
+                                    Icons.arrow_forward,
+                                  )
+                                ),
                               )
                             ],
                           ),

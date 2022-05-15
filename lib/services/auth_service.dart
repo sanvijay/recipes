@@ -1,7 +1,7 @@
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Auth {
+class AuthService {
   Future<bool> isLoggedIn() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String? token = pref.getString('auth:access_token');

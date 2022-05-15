@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 // Import services
-import 'package:recipes/services/auth/auth.dart';
+import 'package:recipes/services/auth_service.dart';
 
 // Import controller
 import 'package:recipes/controllers/auth_controller.dart';
@@ -20,19 +20,17 @@ class _LeftDrawerState extends State<LeftDrawer> {
   List<Widget> drawerList = [];
 
   void setDrawerList() async {
-    Auth auth = Auth();
+    AuthService auth = AuthService();
     isLoggedIn = await auth.isLoggedIn();
 
     drawerList.add(
-      DrawerHeader(
+      const DrawerHeader(
         decoration: BoxDecoration(
-          image: DecorationImage(image: NetworkImage('https://upload.wikimedia.org/wikipedia/commons/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg')),
-          color: Colors.redAccent,
+          image: DecorationImage(image: AssetImage('assets/images/appicon-1024.png')),
+          color: Color.fromRGBO(249, 250, 250, 1),
+          border: Border(bottom: BorderSide(color: Colors.black,)),
         ),
-        child: Container(
-          padding: EdgeInsets.all(10),
-          child: Text('Drawer Header', textAlign: TextAlign.center,)
-        ),
+        child: null,
       ),
     );
     //
