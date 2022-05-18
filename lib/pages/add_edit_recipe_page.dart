@@ -31,6 +31,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
   TextEditingController recipeDescTxtCntl = TextEditingController();
   TextEditingController recipeImgUrlTxtCntl = TextEditingController();
   TextEditingController recipeDurationTxtCntl = TextEditingController();
+  TextEditingController recipeServingsTxtCntl = TextEditingController();
 
   getRecipeDetails(String? slug) async {
     if (recipe != null) return;
@@ -46,6 +47,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
     recipeDescTxtCntl.text = recipe?.description ?? '';
     recipeImgUrlTxtCntl.text = recipe?.imageUrl ?? '';
     recipeDurationTxtCntl.text = (recipe?.durationInMin == null ? '' : recipe?.durationInMin.toString())!;
+    recipeServingsTxtCntl.text = (recipe?.servings == null ? '' : recipe?.servings.toString())!;
 
     setState(() {
       recipe = recipe;
@@ -54,6 +56,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
       values['image_url'] = recipe?.imageUrl;
       values['slug'] = recipe?.slug;
       values['duration_in_minutes'] = recipe?.durationInMin.toString();
+      values['servings'] = recipe?.servings.toString();
       values['ingredients'] = recipe?.ingredients ?? [];
       values['instructions'] = recipe?.instructions ?? [];
     });
@@ -127,6 +130,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
       values['instructions'],
       false,
       int.parse(values['duration_in_minutes']),
+      int.parse(values['servings'])
     );
 
     newRecipe.saveToCloud(token);
@@ -433,6 +437,25 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
             ),
             Column(
               children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    controller: recipeServingsTxtCntl,
+                    keyboardType: TextInputType.number,
+                    onChanged: (text) {
+                      setState(() { errors['servings'] = null; });
+                      values['servings'] = text;
+                    },
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      hintText: 'Appr. No of people could be served',
+                      errorText: errors['servings'],
+                    ),
+                  ),
+                ),
                 ...ingredientInputList(),
                 ElevatedButton(
                   onPressed: () {

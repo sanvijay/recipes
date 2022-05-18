@@ -25,6 +25,7 @@ class RecipesController {
         data[i]['instructions'],
         data[i]['is_favorite'],
         data[i]['duration_in_minutes'],
+        data[i]['servings'],
       );
       list.add(recipe);
     }
@@ -46,7 +47,8 @@ class RecipesController {
         data[i]['ingredient_details'],
         data[i]['instructions'],
         data[i]['is_favorite'],
-        data[i]['duration_in_minutes']
+        data[i]['duration_in_minutes'],
+        data[i]['servings'],
       );
       createdList.add(recipe);
     }
@@ -69,6 +71,7 @@ class RecipesController {
         data[i]['instructions'],
         data[i]['is_favorite'],
         data[i]['duration_in_minutes'],
+        data[i]['servings'],
       );
       favoriteList.add(recipe);
     }
@@ -90,12 +93,57 @@ class RecipesController {
       data['instructions'],
       data['is_favorite'],
       data['duration_in_minutes'],
+      data['servings'],
     );
     newRecipe.assignAuthor(
       data['author']['id'],
-      data['author']['first_name'] + ' ' + data['author']['last_name']
+      data['author']['first_name'],
+      data['author']['last_name']
     );
 
     return newRecipe;
+  }
+
+  Future<List<Recipe>> searchRecipe(int page, {String? title, String? ingredients, String? durationInMinutes}) async {
+    List<Recipe> recipes = [];
+
+    if ((title == null || title == '') && (ingredients == null || ingredients == '') && (durationInMinutes == null || durationInMinutes == '')) {
+      return recipes;
+    }
+
+    String url = '${dotenv.env['API_URL']}/recipe/search?title=$title';
+    Uri baseUri = Uri.parse(url);
+
+    Map<String, String> params = {};
+
+    if (title != null && title != '') params['title'] = title;
+    if (ingredients != null && ingredients != '') params['ingredients'] = ingredients;
+    if (durationInMinutes != null && durationInMinutes != '') params['duration_in_minutes'] = durationInMinutes;
+
+    // &page=1&page_size=10
+    params['page'] = '1';
+    params['page_size'] = '50';
+
+    Uri uri = baseUri.replace(queryParameters: params);
+
+    Response response = await get(uri);
+    List data = jsonDecode(response.body);
+
+    for(var i = 0; i < data.length; i++) {
+      Recipe recipe = Recipe(slug: data[i]['slug']);
+      recipe.assignValues(
+        data[i]['description'],
+        data[i]['title'],
+        data[i]['image_url'],
+        data[i]['ingredient_details'],
+        data[i]['instructions'],
+        data[i]['is_favorite'],
+        data[i]['duration_in_minutes'],
+        data[i]['servings'],
+      );
+      recipes.add(recipe);
+    }
+
+    return recipes;
   }
 }

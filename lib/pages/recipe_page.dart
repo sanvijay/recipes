@@ -66,7 +66,7 @@ class _RecipePageState extends State<RecipePage> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       appBar: AppBar(
-        title: const Text('Recipes'),
+        title: Text(recipe?.title ?? ''),
         centerTitle: true,
         backgroundColor: Colors.redAccent,
         actions: <Widget>[
@@ -143,7 +143,9 @@ class RecipeDetails extends StatelessWidget {
       children: <Widget>[
         Image.network(
           recipe?.imageUrl as String,
-          fit: BoxFit.fitWidth,
+          fit: BoxFit.cover,
+          width: MediaQuery.of(context).size.width,
+          height: 300,
         ),
         Padding(
           padding: const EdgeInsets.all(10.0),
@@ -153,6 +155,7 @@ class RecipeDetails extends StatelessWidget {
               fontSize: 28.0,
               letterSpacing: 2.0,
             ),
+            textAlign: TextAlign.center,
           ),
         ),
         Padding(
@@ -176,13 +179,90 @@ class RecipeDetails extends StatelessWidget {
           width: MediaQuery.of(context).size.width,
           padding: const EdgeInsets.all(10.0),
           child: const Text(
-            'Ingredients',
+            'Added By',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: Colors.black,
             ),
             textAlign: TextAlign.left,
           ),
+        ),
+        Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.all(10.0),
+          child: Row(
+            children: [
+              Container(
+                decoration: const BoxDecoration(
+                  color: Colors.grey,
+                  shape: BoxShape.circle,
+                ),
+                padding: const EdgeInsets.all(10.0),
+                margin: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Text((recipe?.authorFirstName ?? '')[0].toUpperCase() + (recipe?.authorLastName ?? '')[0].toUpperCase(), style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),),
+              ),
+              Text((recipe?.authorFirstName ?? '') + ' ' + (recipe?.authorLastName ?? ''))
+            ],
+          ),
+        ),
+        const Divider(
+          thickness: 2.0,
+        ),
+        Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.all(10.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Ingredients',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.left,
+              ),
+              Row(
+                children: [
+                  // Padding(
+                  //   padding: EdgeInsets.symmetric(horizontal: 10.0),
+                  //   child: Text(
+                  //     '-',
+                  //     style: TextStyle(
+                  //       fontWeight: FontWeight.w500,
+                  //       color: Colors.black,
+                  //     ),
+                  //     textAlign: TextAlign.left,
+                  //   ),
+                  // ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10.0),
+                    child: Text(
+                      '${recipe?.servings ?? ''} Servings',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                  // Padding(
+                  //   padding: EdgeInsets.symmetric(horizontal: 10.0),
+                  //   child: Text(
+                  //     '+',
+                  //     style: TextStyle(
+                  //       fontWeight: FontWeight.w500,
+                  //       color: Colors.black,
+                  //     ),
+                  //     textAlign: TextAlign.left,
+                  //   ),
+                  // ),
+                ],
+              )
+            ],
+          )
         ),
         Container(
           padding: const EdgeInsets.all(10.0),

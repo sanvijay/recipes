@@ -38,7 +38,9 @@ class RecipeCard extends StatelessWidget {
                     children: [
                       Image.network(
                         recipe.imageUrl as String,
-                        fit: BoxFit.fitWidth,
+                        fit: BoxFit.cover,
+                        width: MediaQuery.of(context).size.width,
+                        height: 300,
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,

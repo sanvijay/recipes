@@ -9,10 +9,12 @@ class Recipe {
   String? imageUrl;
   bool isFavorite = false;
   int? authorId;
-  String? authorName;
+  String? authorFirstName;
+  String? authorLastName;
   int? durationInMin;
   List? ingredients;
   List? instructions;
+  int? servings;
 
   final jsonEncoder = const JsonEncoder();
 
@@ -29,12 +31,14 @@ class Recipe {
     isFavorite = data['is_favorite'];
     durationInMin = data['duration_in_minutes'];
     authorId = data['author']['id'];
-    authorName = data['author']['first_name'] + ' ' + data['author']['last_name'];
+    authorFirstName = data['author']['first_name'];
+    authorLastName = data['author']['last_name'];
     ingredients = data['ingredient_details'];
     instructions = data['instructions'];
+    servings = data['servings'];
   }
 
-  void assignValues(String description, String title, String imageUrl, List ingredients, List instructions, bool isFavorite, int durationInMin) {
+  void assignValues(String description, String title, String imageUrl, List ingredients, List instructions, bool isFavorite, int durationInMin, int servings) {
     this.description = description;
     this.title = title;
     this.imageUrl = imageUrl;
@@ -42,11 +46,13 @@ class Recipe {
     this.durationInMin = durationInMin;
     this.ingredients = ingredients;
     this.instructions = instructions;
+    this.servings = servings;
   }
 
-  void assignAuthor(int authorId, String authorName) {
+  void assignAuthor(int authorId, String authorFirstName, String authorLastName) {
     this.authorId = authorId;
-    this.authorName = authorName;
+    this.authorFirstName = authorFirstName;
+    this.authorLastName = authorLastName;
   }
 
   void saveToCloud(String token) async {
