@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+// Import models
+import 'package:recipes/models/recipe.dart';
 
 class PlayRecipePage extends StatefulWidget {
   const PlayRecipePage({Key? key}) : super(key: key);
@@ -8,56 +12,79 @@ class PlayRecipePage extends StatefulWidget {
 }
 
 class _PlayRecipePageState extends State<PlayRecipePage> {
+  Recipe? recipe;
+
   @override
   void initState() {
     super.initState();
   }
 
+  getRecipeDetails(String slug, { bool force = false }) async {
+    if (recipe != null && !force) return;
+
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String? token = pref.getString('auth:access_token');
+
+    recipe = Recipe(slug: slug);
+    await recipe?.setDetails(token);
+    setState(() {
+      recipe = recipe;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    Map args = ModalRoute.of(context)?.settings.arguments as Map;
+    getRecipeDetails(args['slug']);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Kindacode.com'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: const BackButton(
+          color: Colors.black,
+        ),
       ),
-      body: const Center(),
+      body: const SingleChildScrollView(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Stack(
-        fit: StackFit.expand,
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Positioned(
-            left: 30,
-            bottom: 20,
-            child: FloatingActionButton(
-              heroTag: 'back',
-              onPressed: () {/* Do something */},
-              child: const Icon(
-                Icons.arrow_left,
-                size: 40,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
+          FloatingActionButton(
+            heroTag: 'previous',
+            onPressed: () {/* Do something */},
+            child: const Icon(
+              Icons.arrow_left,
+              size: 40,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
-          Positioned(
-            bottom: 20,
-            right: 30,
-            child: FloatingActionButton(
-              heroTag: 'next',
-              onPressed: () {/* Do something */},
-              child: const Icon(
-                Icons.arrow_right,
-                size: 40,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
+          FloatingActionButton(
+            heroTag: 'action',
+            onPressed: () {/* Do something */},
+            child: const Icon(
+              Icons.play_arrow,
+              size: 40,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
-          // Add more floating buttons if you want
-          // There is no limit
+          FloatingActionButton(
+            heroTag: 'next',
+            onPressed: () {/* Do something */},
+            child: const Icon(
+              Icons.arrow_right,
+              size: 40,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
         ],
-      ),
+      )
     );
   }
 }

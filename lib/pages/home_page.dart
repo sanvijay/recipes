@@ -101,8 +101,6 @@ class _HomePageState extends State<HomePage> {
       drawer: const LeftDrawer(),
       appBar: AppBar(
         title: const Text('Recipes'),
-        centerTitle: true,
-        backgroundColor: Colors.redAccent,
       ),
       body: allRecipes.isEmpty ?
         const Center(child: Text("Loading...")) :

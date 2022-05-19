@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 
 // Import Pages
 import 'package:recipes/pages/home_page.dart';
@@ -13,24 +15,34 @@ import 'package:recipes/pages/register_page.dart';
 import 'package:recipes/pages/search_page.dart';
 import 'package:recipes/pages/settings_page.dart';
 
+// Import Theme
+import 'package:recipes/theme.dart';
+import 'package:recipes/theme_manager.dart';
+
 void main() async {
   await dotenv.load(fileName: ".env");
 
   runApp(
-    MaterialApp(
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const HomePage(),
-        '/recipe': (context) => const RecipePage(),
-        '/favorite': (context) => const FavoritePage(),
-        '/add-edit-recipe': (context) => const AddEditRecipePage(),
-        '/login': (context) => const LoginPage(),
-        '/register': (context) => const RegisterPage(),
-        '/profile': (context) => const ProfilePage(),
-        '/search': (context) => const SearchPage(),
-        '/settings': (context) => const SettingsPage(),
-        '/play-recipe': (context) => const PlayRecipePage(),
-      },
+    ChangeNotifierProvider<ThemeNotifier>(
+      create: (_) => ThemeNotifier(),
+      child: Consumer<ThemeNotifier>(
+        builder: (context, theme, _) => MaterialApp(
+          theme: theme.getTheme(),
+          initialRoute: '/',
+          routes: {
+            '/': (context) => const HomePage(),
+            '/recipe': (context) => const RecipePage(),
+            '/favorite': (context) => const FavoritePage(),
+            '/add-edit-recipe': (context) => const AddEditRecipePage(),
+            '/login': (context) => const LoginPage(),
+            '/register': (context) => const RegisterPage(),
+            '/profile': (context) => const ProfilePage(),
+            '/search': (context) => const SearchPage(),
+            '/settings': (context) => const SettingsPage(),
+            '/play-recipe': (context) => const PlayRecipePage(),
+          },
+        )
+      )
     )
   );
 }

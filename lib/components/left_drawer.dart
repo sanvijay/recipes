@@ -45,16 +45,16 @@ class _LeftDrawerState extends State<LeftDrawer> {
     //     )
     //   );
     // }
-    //
-    // drawerList.add(
-    //   ListTile(
-    //     leading: const Icon(Icons.settings),
-    //     title: const Text('Settings'),
-    //     onTap: () {
-    //       Navigator.pushNamed(context, '/settings');
-    //     },
-    //   ),
-    // );
+
+    drawerList.add(
+      ListTile(
+        leading: const Icon(Icons.settings),
+        title: const Text('Settings'),
+        onTap: () {
+          Navigator.pushNamed(context, '/settings');
+        },
+      ),
+    );
 
     if (!isLoggedIn) {
       drawerList.add(

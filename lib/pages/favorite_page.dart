@@ -166,8 +166,6 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
               TabBar(
                 indicatorColor: Colors.redAccent,
                 controller: _tabController,
-                labelColor: Colors.black,
-                unselectedLabelColor: Colors.grey,
                 tabs: const [
                   Tab(text: "My Recipes",),
                   Tab(text: "My Favorites",),

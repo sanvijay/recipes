@@ -55,19 +55,31 @@ class Recipe {
     this.authorLastName = authorLastName;
   }
 
-  void saveToCloud(String token) async {
-    String url = slug == '' ? '${dotenv.env['API_URL']}/recipe/new' : '${dotenv.env['API_URL']}/recipe/$slug/update';
-    Uri baseUri = Uri.parse(url);
-    Uri uri = baseUri.replace(queryParameters: {
-      'title': title,
-      'description': description,
-      'image_url': imageUrl,
-      'duration_in_minutes': durationInMin.toString(),
-      'ingredient_details': jsonEncoder.convert(ingredients),
-      'instructions': jsonEncoder.convert(instructions),
-    });
-    Response response = await post(uri, headers: { 'Authorization': 'Bearer $token', 'Content-type': 'application/json' });
-    Map data = jsonDecode(response.body);
-    slug = data['slug'];
+  Future<bool> saveToCloud(String token) async {
+    try {
+      String url = slug == ''
+          ? '${dotenv.env['API_URL']}/recipe/new'
+          : '${dotenv.env['API_URL']}/recipe/$slug/update';
+      Uri baseUri = Uri.parse(url);
+      Uri uri = baseUri.replace(queryParameters: {
+        'title': title,
+        'description': description,
+        'image_url': imageUrl,
+        'duration_in_minutes': durationInMin.toString(),
+        'ingredient_details': jsonEncoder.convert(ingredients),
+        'instructions': jsonEncoder.convert(instructions),
+        'servings': servings.toString(),
+      });
+      Response response = await post(uri, headers: {
+        'Authorization': 'Bearer $token',
+        'Content-type': 'application/json'
+      });
+
+      Map data = jsonDecode(response.body);
+      slug = data['slug'];
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }

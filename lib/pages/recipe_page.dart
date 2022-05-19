@@ -60,6 +60,11 @@ class _RecipePageState extends State<RecipePage> {
         onPressed: () {
           ScaffoldMessenger.of(context)
               .showSnackBar(const SnackBar(content: Text("New feature coming soon!")));
+          // Navigator.pushNamed(
+          //   context,
+          //   '/play-recipe',
+          //   arguments: { 'slug': recipe!.slug },
+          // );
         },
         backgroundColor: Colors.redAccent,
         child: const Icon(Icons.play_arrow),
@@ -68,7 +73,6 @@ class _RecipePageState extends State<RecipePage> {
       appBar: AppBar(
         title: Text(recipe?.title ?? ''),
         centerTitle: true,
-        backgroundColor: Colors.redAccent,
         actions: <Widget>[
           recipe != null && currentUser.isNotEmpty && recipe!.authorId == currentUser['userId'] ? GestureDetector(
             child: const Icon(Icons.edit),
@@ -182,7 +186,6 @@ class RecipeDetails extends StatelessWidget {
             'Added By',
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: Colors.black,
             ),
             textAlign: TextAlign.left,
           ),
@@ -220,7 +223,6 @@ class RecipeDetails extends StatelessWidget {
                 'Ingredients',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
                 ),
                 textAlign: TextAlign.left,
               ),
@@ -243,7 +245,6 @@ class RecipeDetails extends StatelessWidget {
                       '${recipe?.servings ?? ''} Servings',
                       style: const TextStyle(
                         fontWeight: FontWeight.w500,
-                        color: Colors.black,
                       ),
                       textAlign: TextAlign.left,
                     ),
@@ -285,7 +286,6 @@ class RecipeDetails extends StatelessWidget {
             'Directions',
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: Colors.black,
             ),
             textAlign: TextAlign.left,
           ),

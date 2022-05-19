@@ -72,8 +72,6 @@ class _SearchPageState extends State<SearchPage> {
         drawer: const LeftDrawer(),
         appBar: AppBar(
           title: const Text('Search'),
-          centerTitle: true,
-          backgroundColor: Colors.redAccent,
         ),
         body: SingleChildScrollView(
           child: Column(

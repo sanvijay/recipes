@@ -133,8 +133,10 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
       int.parse(values['servings'])
     );
 
-    newRecipe.saveToCloud(token);
-    Navigator.pop(context);
+    bool success = await newRecipe.saveToCloud(token);
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(success ? "Saved Successfully!" : "Some error occurred!")));
   }
 
   List<Widget> ingredientInputList() {
@@ -245,11 +247,13 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
   Widget instructionInput(int index, Map value) {
     TextEditingController valueCntl = TextEditingController();
     TextEditingController durationCntl = TextEditingController();
+    TextEditingController imageUrlCntl = TextEditingController();
 
     value['order'] = index;
     value['unit'] = values['instructions'][index]['unit'] ?? 'min';
     valueCntl.text = value['value'] ?? '';
     durationCntl.text = value['duration'] == null ? '' : value['duration'].toString();
+    imageUrlCntl.text = value['image_url'] == null ? '' : value['image_url'].toString();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
@@ -274,6 +278,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
                   values['instructions'][index] = currentValue;
                 },
               ),
+              const Text("Select 'until' if time up to the user"),
               const SizedBox(height: 10.0,),
               Row(
                 children: [
@@ -311,7 +316,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
                           values['instructions'][index] = currentValue;
                         });
                       },
-                      items: <String>['sec', 'min', 'hours', 'days']
+                      items: <String>['sec', 'min', 'hours', 'days', 'until']
                           .map<DropdownMenuItem<String>>((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
@@ -322,6 +327,20 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
                     flex: 1,
                   ),
                 ],
+              ),
+              const SizedBox(height: 10.0,),
+              TextField(
+                controller: imageUrlCntl,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'Enter any image / video url (optional)',
+                ),
+                onChanged: (text) {
+                  Map currentValue = values['instructions'][index];
+                  currentValue['image_url'] = text;
+
+                  values['instructions'][index] = currentValue;
+                },
               ),
               ElevatedButton(
                 onPressed: () {
