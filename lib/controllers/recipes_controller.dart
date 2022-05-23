@@ -26,6 +26,9 @@ class RecipesController {
         data[i]['is_favorite'],
         data[i]['duration_in_minutes'],
         data[i]['servings'],
+        data[i]['recipe_tags'],
+        data[i]['diet_type'],
+        data[i]['cuisine'],
       );
       list.add(recipe);
     }
@@ -49,6 +52,9 @@ class RecipesController {
         data[i]['is_favorite'],
         data[i]['duration_in_minutes'],
         data[i]['servings'],
+        data[i]['recipe_tags'],
+        data[i]['diet_type'],
+        data[i]['cuisine'],
       );
       createdList.add(recipe);
     }
@@ -72,6 +78,9 @@ class RecipesController {
         data[i]['is_favorite'],
         data[i]['duration_in_minutes'],
         data[i]['servings'],
+        data[i]['recipe_tags'],
+        data[i]['diet_type'],
+        data[i]['cuisine'],
       );
       favoriteList.add(recipe);
     }
@@ -94,6 +103,9 @@ class RecipesController {
       data['is_favorite'],
       data['duration_in_minutes'],
       data['servings'],
+      data['recipe_tags'],
+      data['diet_type'],
+      data['cuisine'],
     );
     newRecipe.assignAuthor(
       data['author']['id'],
@@ -140,6 +152,9 @@ class RecipesController {
         data[i]['is_favorite'],
         data[i]['duration_in_minutes'],
         data[i]['servings'],
+        data[i]['recipe_tags'],
+        data[i]['diet_type'],
+        data[i]['cuisine'],
       );
       recipes.add(recipe);
     }

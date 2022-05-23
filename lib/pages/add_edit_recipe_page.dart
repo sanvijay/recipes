@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
 
 // Import components
 import 'package:recipes/components/login_message.dart';
@@ -18,12 +19,38 @@ class AddEditRecipePage extends StatefulWidget {
   State<AddEditRecipePage> createState() => _AddEditRecipePageState();
 }
 
+class RecipeTag {
+  final String id;
+  final String name;
+
+  RecipeTag({
+    required this.id,
+    required this.name,
+  });
+}
+
 class _AddEditRecipePageState extends State<AddEditRecipePage> {
   List<String> fields = ['title', 'description', 'image_url', 'duration_in_minutes'];
   Map values = {};
   Map errors = {};
   bool isLoggedIn = false;
   Map args = {};
+
+  List<RecipeTag>? initialRecipeTags;
+
+  static final List<RecipeTag> _recipeTags = [
+    RecipeTag(id: 'breakfast', name: "Breakfast"),
+    RecipeTag(id: 'lunch', name: "Lunch"),
+    RecipeTag(id: 'dinner', name: "Dinner"),
+    RecipeTag(id: 'brunch', name: "Brunch"),
+    RecipeTag(id: 'dessert', name: "Dessert"),
+    RecipeTag(id: 'beverages', name: "Beverages"),
+    RecipeTag(id: 'starters', name: "Starters"),
+    RecipeTag(id: 'side-dish', name: "Side Dish"),
+  ];
+  final _items = _recipeTags
+      .map((tag) => MultiSelectItem<RecipeTag?>(tag, tag.name))
+      .toList();
 
   Recipe? recipe;
 
@@ -32,10 +59,14 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
   TextEditingController recipeImgUrlTxtCntl = TextEditingController();
   TextEditingController recipeDurationTxtCntl = TextEditingController();
   TextEditingController recipeServingsTxtCntl = TextEditingController();
+  TextEditingController recipeCuisineTxtCntl = TextEditingController();
 
   getRecipeDetails(String? slug) async {
     if (recipe != null) return;
-    if (slug == null) return;
+    if (slug == null) {
+      initialRecipeTags = [];
+      return;
+    }
 
     SharedPreferences pref = await SharedPreferences.getInstance();
     String? token = pref.getString('auth:access_token');
@@ -46,6 +77,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
     recipeTitleTxtCntl.text = recipe?.title ?? '';
     recipeDescTxtCntl.text = recipe?.description ?? '';
     recipeImgUrlTxtCntl.text = recipe?.imageUrl ?? '';
+    recipeCuisineTxtCntl.text = recipe?.cuisine ?? '';
     recipeDurationTxtCntl.text = (recipe?.durationInMin == null ? '' : recipe?.durationInMin.toString())!;
     recipeServingsTxtCntl.text = (recipe?.servings == null ? '' : recipe?.servings.toString())!;
 
@@ -59,6 +91,11 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
       values['servings'] = recipe?.servings.toString();
       values['ingredients'] = recipe?.ingredients ?? [];
       values['instructions'] = recipe?.instructions ?? [];
+      values['recipe_tags'] = recipe?.recipeTags ?? [];
+      values['diet_type'] = recipe?.dietType;
+      values['cuisine'] = recipe?.cuisine;
+
+      initialRecipeTags = _recipeTags.where((tag) => values['recipe_tags'].contains(tag.name)).toList();
     });
   }
 
@@ -91,12 +128,19 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
     }
   }
 
+  void prepareValueForTags() {
+    if(values['recipe_tags'] == null) {
+      values['recipe_tags'] = [];
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     setLoggedInDetails();
     prepareValueForIngredient();
     prepareValueForInstruction();
+    prepareValueForTags();
   }
 
   void validateAndSaveData() async {
@@ -130,7 +174,10 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
       values['instructions'],
       false,
       int.parse(values['duration_in_minutes']),
-      int.parse(values['servings'])
+      int.parse(values['servings']),
+      values['recipe_tags'],
+      values['diet_type'],
+      values['cuisine'],
     );
 
     bool success = await newRecipe.saveToCloud(token);
@@ -202,19 +249,26 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
                     flex: 1,
                   ),
                   const SizedBox(width: 10.0,),
-                  Expanded(child:
-                    TextField(
-                      controller: unitCntl,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: 'Enter Unit',
-                      ),
-                      onChanged: (text) {
-                        Map currentValue = values['ingredients'][index];
-                        currentValue['unit'] = text;
+                  Expanded(
+                    child: DropdownButton<String>(
+                      value: values['ingredients'][index]['unit'] ?? 'nos',
+                      icon: const Icon(Icons.arrow_downward),
+                      elevation: 16,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          Map currentValue = values['ingredients'][index];
+                          currentValue['unit'] = newValue;
 
-                        values['ingredients'][index] = currentValue;
+                          values['ingredients'][index] = currentValue;
+                        });
                       },
+                      items: <String>['nos', 'g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'cup']
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
                     ),
                     flex: 1,
                   ),
@@ -312,6 +366,9 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
                         setState(() {
                           Map currentValue = values['instructions'][index];
                           currentValue['unit'] = newValue;
+                          if (newValue == 'until') {
+                            currentValue['duration'] = 0;
+                          }
 
                           values['instructions'][index] = currentValue;
                         });
@@ -366,9 +423,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add new Recipe'),
-        centerTitle: true,
-        backgroundColor: Colors.redAccent,
+        title: Text(args['slug'] == null ? 'Add new Recipe' : 'Edit Recipe'),
       ),
       body: !isLoggedIn ? const LoginMessage() : SingleChildScrollView(
         child: Column(
@@ -382,11 +437,11 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
                   values['title'] = text;
                 },
                 maxLines: 2,
-                autofocus: true,
                 maxLength: 72,
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
                   hintText: 'Enter title',
+                  labelText: 'Enter title',
                   errorText: errors['title'],
                 ),
               ),
@@ -404,6 +459,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
                   hintText: 'Enter description',
+                  labelText: 'Enter description',
                   errorText: errors['description'],
                 ),
               ),
@@ -420,6 +476,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
                   hintText: 'Enter Image Url',
+                  labelText: 'Enter Image Url',
                   errorText: errors['image_url'],
                 ),
               ),
@@ -439,10 +496,79 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
                   hintText: 'Enter Duration in minutes',
+                  labelText: 'Enter Duration in minutes',
                   errorText: errors['duration_in_minutes'],
                 ),
               ),
             ),
+            const Divider(
+              thickness: 2.0,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+              child: TextField(
+                controller: recipeCuisineTxtCntl,
+                onChanged: (text) {
+                  setState(() { errors['cuisine'] = null; });
+                  values['cuisine'] = text;
+                },
+                maxLength: 256,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  hintText: 'Enter Cuisine',
+                  errorText: errors['cuisine'],
+                  labelText: 'like Indian, Continental, French',
+                ),
+              ),
+            ),
+            Wrap(
+              children: <Widget>[
+                ListTile(
+                  title: const Text('Veg',),
+                  leading: Radio(
+                    value: "veg",
+                    groupValue: values['diet_type'],
+                    activeColor: const Color(0xFF6200EE),
+                    onChanged: (value) {
+                      setState(() {
+                        values['diet_type'] = value;
+                      });
+                    },
+                  ),
+                ),
+                ListTile(
+                  title: const Text('Non-veg',),
+                  leading: Radio(
+                    value: "non-veg",
+                    groupValue: values['diet_type'],
+                    activeColor: const Color(0xFF6200EE),
+                    onChanged: (value) {
+                      setState(() {
+                        values['diet_type'] = value;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+            initialRecipeTags != null ? Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: MultiSelectChipField(
+                items: _items,
+                initialValue: initialRecipeTags,
+                title: const Text("Tags"),
+                scroll: false,
+                headerColor: Colors.grey.withOpacity(0.5),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey, width: 1.8),
+                ),
+                selectedChipColor: Colors.grey.withOpacity(0.5),
+                selectedTextStyle: TextStyle(color: Colors.grey[800]),
+                onTap: (results) {
+                  values['recipe_tags'] = results.map((tag) => (tag as RecipeTag).name).toList();
+                },
+              ),
+            ) : const SizedBox.shrink(),
             const Divider(
               thickness: 2.0,
             ),
@@ -454,6 +580,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
+            const SizedBox(height: 10,),
             Column(
               children: [
                 Padding(
@@ -471,6 +598,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
                       hintText: 'Appr. No of people could be served',
+                      labelText: 'Appr. No of people could be served',
                       errorText: errors['servings'],
                     ),
                   ),

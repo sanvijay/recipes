@@ -27,6 +27,24 @@ class ThemeNotifier with ChangeNotifier {
     });
   }
 
+  Future<bool> isDarkMode() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String? darkTheme = pref.getString('theme:dark_theme');
+
+    if (darkTheme == 'light') {
+      return false;
+    }
+    else if (darkTheme == 'dark') {
+      return true;
+    }
+    else if (darkTheme == 'system') {
+      var brightness = SchedulerBinding.instance!.window.platformBrightness;
+      return brightness == Brightness.dark;
+    }
+
+    return false;
+  }
+
   void setDarkMode() async {
     _themeData = ThemeKlass.darkTheme;
     SharedPreferences pref = await SharedPreferences.getInstance();

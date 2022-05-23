@@ -82,7 +82,6 @@ class _SearchPageState extends State<SearchPage> {
                   controller: recipeTitleTxtCntl,
                   onChanged: (text) {},
                   maxLines: 2,
-                  autofocus: true,
                   maxLength: 96,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
@@ -118,7 +117,6 @@ class _SearchPageState extends State<SearchPage> {
                   controller: recipeIngredientTxtCntl,
                   onChanged: (text) {},
                   maxLines: 2,
-                  autofocus: true,
                   maxLength: 96,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
@@ -133,7 +131,6 @@ class _SearchPageState extends State<SearchPage> {
                   controller: recipeDurationTxtCntl,
                   keyboardType: TextInputType.number,
                   onChanged: (text) {},
-                  autofocus: true,
                   maxLength: 96,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),

@@ -1,8 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Import models
 import 'package:recipes/models/recipe.dart';
+
+import 'package:recipes/theme_manager.dart';
 
 class PlayRecipePage extends StatefulWidget {
   const PlayRecipePage({Key? key}) : super(key: key);
@@ -13,13 +16,27 @@ class PlayRecipePage extends StatefulWidget {
 
 class _PlayRecipePageState extends State<PlayRecipePage> {
   Recipe? recipe;
+  int state = -1;
+  bool isDarkMode = false;
+
+  ThemeNotifier theme = ThemeNotifier();
+
+  List ingredients = [];
+  int noOfServings = 1;
+  List instructions = [];
 
   @override
   void initState() {
     super.initState();
+
+    setDarkMode();
   }
 
-  getRecipeDetails(String slug, { bool force = false }) async {
+  void setDarkMode() async {
+    isDarkMode = await theme.isDarkMode();
+  }
+
+  void getRecipeDetails(String slug, { bool force = false }) async {
     if (recipe != null && !force) return;
 
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -29,55 +46,217 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
     await recipe?.setDetails(token);
     setState(() {
       recipe = recipe;
+      ingredients = recipe!.ingredients!;
+      noOfServings = recipe!.servings!;
+      instructions = recipe!.instructions!;
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    Map args = ModalRoute.of(context)?.settings.arguments as Map;
-    getRecipeDetails(args['slug']);
+  void moveNextState() {
+    if (recipe == null) return;
+    state++;
 
+    setState(() {
+      if (state > recipe!.instructions!.length) state = recipe!.instructions!.length;
+    });
+  }
+
+  void movePrevState() {
+    if (recipe == null) return;
+    state--;
+
+    setState(() {
+      if (state < -1) state = -1;
+    });
+  }
+
+  bool areAllIngredientChecked() {
+    if (ingredients.isEmpty) return false;
+
+    return ingredients.every((element) => element['checked'] ?? false);
+  }
+
+  void checkAllIngredients() {
+    for(int i = 0; i < ingredients.length; i++) {
+      ingredients[i]['checked'] = true;
+    }
+
+    setState(() {
+      ingredients = ingredients;
+    });
+  }
+
+  void uncheckAllIngredients() {
+    for(int i = 0; i < ingredients.length; i++) {
+      ingredients[i]['checked'] = false;
+    }
+
+    setState(() {
+      ingredients = ingredients;
+    });
+  }
+
+  Widget ingredientCard(Map ingredient) {
+    double quantity = ingredient['quantity'] * (noOfServings / recipe!.servings!);
+
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      child: Card(
+        color: Colors.grey,
+        margin: EdgeInsets.all(8.0),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Checkbox(
+                      value: ingredient['checked'] ?? false,
+                      onChanged: (val) {
+                        setState(() {
+                          ingredient['checked'] = val;
+                        });
+                      }
+                    ),
+                    Text(
+                      ingredient['title'],
+                      style: const TextStyle(
+                          fontSize: 20
+                      ),
+                    ),
+                  ],
+                ),
+                Text(quantity.toString() + " " + ingredient['unit'], style: const TextStyle(
+                    fontSize: 20
+                ),),
+              ]
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildIngredientChecklistPage() {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: const BackButton(
-          color: Colors.black,
+        leading: BackButton(
+          color: isDarkMode ? Colors.white : Colors.black,
         ),
       ),
-      body: const SingleChildScrollView(),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              width: MediaQuery.of(context).size.width,
+              child: Card(
+                color: Colors.grey,
+                margin: EdgeInsets.all(8.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Servings",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          ElevatedButton(
+                            style: ButtonStyle(
+                              foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                noOfServings--;
+                                if (noOfServings <= 1) noOfServings = 1;
+                              });
+                            },
+                            child: Icon(Icons.remove,),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 12.0),
+                            child: Text(
+                              noOfServings.toString(),
+                              style: const TextStyle(
+                                fontSize: 20
+                              ),
+                            ),
+                          ),
+                          ElevatedButton(
+                            style: ButtonStyle(
+                              foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                noOfServings++;
+                              });
+                            },
+                            child: Icon(Icons.add,),
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Text(
+              "Get ready with ingredients",
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            ...ingredients.map((ing) => ingredientCard(ing)).toList(),
+            SizedBox(height: 80,)
+          ],
+        ),
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          FloatingActionButton(
-            heroTag: 'previous',
-            onPressed: () {/* Do something */},
-            child: const Icon(
-              Icons.arrow_left,
-              size: 40,
-            ),
+          FloatingActionButton.extended(
+            heroTag: 'checkAll',
+            onPressed: () {
+              if (areAllIngredientChecked())
+                uncheckAllIngredients();
+              else
+                checkAllIngredients();
+            },
+            icon: const Icon(Icons.check_circle_outline_outlined,),
+            label: Text(areAllIngredientChecked() ? "Uncheck all" : "Check all"),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
           ),
-          FloatingActionButton(
-            heroTag: 'action',
-            onPressed: () {/* Do something */},
-            child: const Icon(
-              Icons.play_arrow,
-              size: 40,
+          FloatingActionButton.extended(
+            heroTag: 'startCooking',
+            onPressed: () {
+              if (!areAllIngredientChecked()) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(const SnackBar(content: Text("Check all the boxes to continue.")));
+                return;
+              }
+
+              moveNextState();
+            },
+            icon: Icon(
+              Icons.restaurant,
+              color: areAllIngredientChecked() ? Colors.black : Colors.grey[700],
             ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          FloatingActionButton(
-            heroTag: 'next',
-            onPressed: () {/* Do something */},
-            child: const Icon(
-              Icons.arrow_right,
-              size: 40,
+            label: Text(
+              "Start cooking",
+              style: TextStyle(
+                color: areAllIngredientChecked() ? Colors.black : Colors.grey[700],
+              ),
             ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
@@ -86,5 +265,146 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
         ],
       )
     );
+  }
+
+  Widget buildInstructionPage(int state) {
+    return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: BackButton(
+            color: isDarkMode ? Colors.white : Colors.black,
+          ),
+        ),
+        body: SingleChildScrollView(
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                instructions[state]['image_url'] != null && instructions[state]['image_url'] != '' ? Image.network(
+                  instructions[state]['image_url'] as String,
+                  fit: BoxFit.cover,
+                  width: MediaQuery.of(context).size.width,
+                  height: 300,
+                ) : const SizedBox.shrink(),
+                Text(
+                  instructions[state]['value'],
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            FloatingActionButton.extended(
+              heroTag: 'previous',
+              onPressed: () {
+                movePrevState();
+              },
+              icon: const Icon(
+                Icons.arrow_left,
+              ),
+              label: Text("Previous"),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            // FloatingActionButton.extended(
+            //   heroTag: 'action',
+            //   onPressed: () {/* Do something */},
+            //   label: const Text("Completed"),
+            //   shape: RoundedRectangleBorder(
+            //     borderRadius: BorderRadius.circular(10),
+            //   ),
+            // ),
+            FloatingActionButton.extended(
+              heroTag: 'next',
+              onPressed: () {
+                moveNextState();
+              },
+              icon: const Icon(
+                Icons.arrow_right,
+              ),
+              label: Text("Next"),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ],
+        )
+    );
+  }
+
+  Widget completedPage() {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: BackButton(
+          color: isDarkMode ? Colors.white : Colors.black,
+        ),
+      ),
+      body: Center(
+        child: Text(
+          "Delicious ${recipe?.title}\nis ready now!",
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          FloatingActionButton.extended(
+            heroTag: 'previous',
+            onPressed: () {
+              movePrevState();
+            },
+            icon: const Icon(
+              Icons.arrow_left,
+            ),
+            label: Text("Previous"),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          FloatingActionButton.extended(
+            heroTag: 'action',
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            label: const Text("Go back to recipe"),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Map args = ModalRoute.of(context)?.settings.arguments as Map;
+    getRecipeDetails(args['slug']);
+
+    if (state <= -1) {
+      return buildIngredientChecklistPage();
+    } else if (state >= instructions.length) {
+      return completedPage();
+    } else {
+      return buildInstructionPage(state);
+    }
   }
 }

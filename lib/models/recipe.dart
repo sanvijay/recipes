@@ -15,6 +15,9 @@ class Recipe {
   List? ingredients;
   List? instructions;
   int? servings;
+  List? recipeTags;
+  String? dietType;
+  String? cuisine;
 
   final jsonEncoder = const JsonEncoder();
 
@@ -36,9 +39,12 @@ class Recipe {
     ingredients = data['ingredient_details'];
     instructions = data['instructions'];
     servings = data['servings'];
+    recipeTags = data['recipe_tags'];
+    dietType = data['diet_type'];
+    cuisine = data['cuisine'];
   }
 
-  void assignValues(String description, String title, String imageUrl, List ingredients, List instructions, bool isFavorite, int durationInMin, int servings) {
+  void assignValues(String description, String title, String imageUrl, List ingredients, List instructions, bool isFavorite, int durationInMin, int servings, List recipeTags, String dietType, String cuisine) {
     this.description = description;
     this.title = title;
     this.imageUrl = imageUrl;
@@ -47,6 +53,9 @@ class Recipe {
     this.ingredients = ingredients;
     this.instructions = instructions;
     this.servings = servings;
+    this.recipeTags = recipeTags;
+    this.dietType = dietType;
+    this.cuisine = cuisine;
   }
 
   void assignAuthor(int authorId, String authorFirstName, String authorLastName) {
@@ -69,6 +78,9 @@ class Recipe {
         'ingredient_details': jsonEncoder.convert(ingredients),
         'instructions': jsonEncoder.convert(instructions),
         'servings': servings.toString(),
+        'recipe_tags[]': recipeTags,
+        "diet_type": dietType,
+        "cuisine": cuisine,
       });
       Response response = await post(uri, headers: {
         'Authorization': 'Bearer $token',

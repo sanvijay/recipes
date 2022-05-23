@@ -58,13 +58,13 @@ class _RecipePageState extends State<RecipePage> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text("New feature coming soon!")));
-          // Navigator.pushNamed(
-          //   context,
-          //   '/play-recipe',
-          //   arguments: { 'slug': recipe!.slug },
-          // );
+          // ScaffoldMessenger.of(context)
+          //     .showSnackBar(const SnackBar(content: Text("New feature coming soon!")));
+          Navigator.pushNamed(
+            context,
+            '/play-recipe',
+            arguments: { 'slug': recipe!.slug },
+          );
         },
         backgroundColor: Colors.redAccent,
         child: const Icon(Icons.play_arrow),
@@ -72,7 +72,6 @@ class _RecipePageState extends State<RecipePage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       appBar: AppBar(
         title: Text(recipe?.title ?? ''),
-        centerTitle: true,
         actions: <Widget>[
           recipe != null && currentUser.isNotEmpty && recipe!.authorId == currentUser['userId'] ? GestureDetector(
             child: const Icon(Icons.edit),
@@ -274,6 +273,37 @@ class RecipeDetails extends StatelessWidget {
               2: FlexColumnWidth(1.0),
             },
             children: recipe!.ingredients!.map((ing) => ingredientTableRow(ing)).toList(),
+          ),
+        ),
+        const Divider(
+          thickness: 2.0,
+        ),
+        Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.all(10.0),
+          child: const Text(
+            'Tags',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.left,
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.fromLTRB(10, 0, 10, 8),
+          width: MediaQuery.of(context).size.width,
+          child: Wrap(
+            children: recipe!.recipeTags!.map((tag) {
+              return Container(
+                padding: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                margin: EdgeInsets.fromLTRB(0, 0, 8, 0),
+                child: Text(tag),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.orangeAccent,
+                ),
+              );
+            }).toList()
           ),
         ),
         const Divider(
