@@ -127,9 +127,12 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
                     ),
                   ],
                 ),
-                Text(quantity.toString() + " " + ingredient['unit'], style: const TextStyle(
+                Text(
+                  quantity.toStringAsFixed(2) + " " + ingredient['unit'],
+                  style: const TextStyle(
                     fontSize: 20
-                ),),
+                  ),
+                ),
               ]
           ),
         ),

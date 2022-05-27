@@ -120,7 +120,6 @@ class _HomePageState extends State<HomePage> {
                         'Add your recipe',
                         style: TextStyle(
                           decoration: TextDecoration.underline,
-                          color: Colors.black,
                           fontSize: 18,
                         ),
                       )

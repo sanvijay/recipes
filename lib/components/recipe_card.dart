@@ -43,8 +43,26 @@ class RecipeCard extends StatelessWidget {
                         height: 300,
                       ),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                Icon(
+                                  Icons.crop_square_rounded,
+                                  color: recipe.dietType == "veg" ? Colors.green : Colors.red,
+                                  size: 36,
+                                ),
+                                Icon(
+                                  Icons.circle,
+                                  color: recipe.dietType == "veg" ? Colors.green : Colors.red,
+                                  size: 14
+                                ),
+                              ],
+                            ),
+                          ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Container(

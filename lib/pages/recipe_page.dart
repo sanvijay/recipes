@@ -278,16 +278,39 @@ class RecipeDetails extends StatelessWidget {
         const Divider(
           thickness: 2.0,
         ),
-        Container(
-          width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.all(10.0),
-          child: const Text(
-            'Tags',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10.0),
+              child: const Text(
+                'Tags',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.left,
+              ),
             ),
-            textAlign: TextAlign.left,
-          ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Icon(
+                    Icons.crop_square_rounded,
+                    color: recipe?.dietType == "veg" ? Colors.green : Colors.red,
+                    size: 36,
+                  ),
+                  Icon(
+                      Icons.circle,
+                      color: recipe?.dietType == "veg" ? Colors.green : Colors.red,
+                      size: 14
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
         Container(
           padding: const EdgeInsets.fromLTRB(10, 0, 10, 8),

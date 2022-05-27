@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 // Import services
 import 'package:recipes/services/auth_service.dart';
+import 'package:recipes/services/rating_service.dart';
 
 // Import controller
 import 'package:recipes/controllers/auth_controller.dart';
@@ -18,6 +19,7 @@ class LeftDrawer extends StatefulWidget {
 class _LeftDrawerState extends State<LeftDrawer> {
   bool isLoggedIn = false;
   List<Widget> drawerList = [];
+  final RatingService ratingService = RatingService();
 
   void setDrawerList() async {
     AuthService auth = AuthService();
@@ -94,6 +96,19 @@ class _LeftDrawerState extends State<LeftDrawer> {
           )
       );
     }
+
+    drawerList.add(
+        ListTile(
+          leading: const Icon(Icons.star),
+          title: const Text('Rate our app!'),
+          onTap: () {
+            if(!ratingService.openRating()) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(const SnackBar(content: Text("Try again later!")));
+            }
+          },
+        )
+    );
 
     setState(() {
       isLoggedIn = isLoggedIn;

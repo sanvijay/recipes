@@ -214,21 +214,20 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
                             child: createdLoadMorePage ? const Text("Cooking more recipes...", textAlign: TextAlign.center,) : Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Text('You reached the end. Do you want to add your magic recipe?'),
+                                const Text('You reached the end. Do you want to add more recipe?'),
                                 TextButton(
-                                    onPressed: () {
-                                      Navigator.pushNamed(context, '/add-edit-recipe',
-                                          arguments: {}
-                                      );
-                                    },
-                                    child: const Text(
-                                      'Add your recipe',
-                                      style: TextStyle(
-                                        decoration: TextDecoration.underline,
-                                        color: Colors.black,
-                                        fontSize: 18,
-                                      ),
-                                    )
+                                  onPressed: () {
+                                    Navigator.pushNamed(context, '/add-edit-recipe',
+                                      arguments: {}
+                                    );
+                                  },
+                                  child: const Text(
+                                    'Add your recipe',
+                                    style: TextStyle(
+                                      decoration: TextDecoration.underline,
+                                      fontSize: 18,
+                                    ),
+                                  )
                                 ),
                               ],
                             ),
