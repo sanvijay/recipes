@@ -47,14 +47,25 @@ class _RegisterPageState extends State<RegisterPage> {
           body: str);
 
       if (response.statusCode == 200) {
-        Navigator.of(context).pushReplacementNamed('/login');
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("Check your email to complete registration.")));
       }
       else {
+        Map body = jsonDecode(response.body);
+        print(body["email"][0]);
+        if (body["email"].any((e) => (e as String).contains("has already been taken"))) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text("Already registered!")));
+          return;
+        }
+
         ScaffoldMessenger.of(context)
             .showSnackBar(const SnackBar(content: Text("Some error occurred!")));
       }
     } catch (e) {
-      // Log error
+      print(e);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Some error occurred!")));
     }
 
   }
@@ -114,7 +125,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: const BorderSide(
-                                  color: Colors.black,
+                                  color: Colors.white,
                                 ),
                               ),
                               hintText: "First Name",
@@ -133,23 +144,23 @@ class _RegisterPageState extends State<RegisterPage> {
                               this.lastName = lastName;
                             },
                             decoration: InputDecoration(
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(
-                                    color: Colors.white,
-                                  ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(
+                                  color: Colors.white,
                                 ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(
-                                    color: Colors.black,
-                                  ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(
+                                  color: Colors.white,
                                 ),
-                                hintText: "Last Name",
-                                hintStyle: const TextStyle(color: Colors.white),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                )
+                              ),
+                              hintText: "Last Name",
+                              hintStyle: const TextStyle(color: Colors.white),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              )
                             ),
                           ),
                           const SizedBox(
@@ -161,23 +172,24 @@ class _RegisterPageState extends State<RegisterPage> {
                               this.email = email;
                             },
                             decoration: InputDecoration(
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(
-                                    color: Colors.white,
-                                  ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(
+                                  color: Colors.white,
                                 ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(
-                                    color: Colors.black,
-                                  ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(
+                                  color: Colors.white,
                                 ),
-                                hintText: "Email",
-                                hintStyle: const TextStyle(color: Colors.white),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                )),
+                              ),
+                              hintText: "Email",
+                              hintStyle: const TextStyle(color: Colors.white),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              )
+                            ),
                           ),
                           const SizedBox(
                             height: 30,
@@ -189,23 +201,24 @@ class _RegisterPageState extends State<RegisterPage> {
                               this.password = password;
                             },
                             decoration: InputDecoration(
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(
-                                    color: Colors.white,
-                                  ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(
+                                  color: Colors.white,
                                 ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(
-                                    color: Colors.black,
-                                  ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(
+                                  color: Colors.white,
                                 ),
-                                hintText: "Password",
-                                hintStyle: const TextStyle(color: Colors.white),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                )),
+                              ),
+                              hintText: "Password",
+                              hintStyle: const TextStyle(color: Colors.white),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              )
+                            ),
                           ),
                           const SizedBox(
                             height: 40,
@@ -261,6 +274,19 @@ class _RegisterPageState extends State<RegisterPage> {
                                   ),
                                 ),
                                 style: const ButtonStyle(),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pushNamed(context, '/confirm-email');
+                                },
+                                child: const Text(
+                                  'Pending Confirmation?',
+                                  style: TextStyle(
+                                    decoration: TextDecoration.underline,
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                  ),
+                                )
                               ),
                             ],
                           )

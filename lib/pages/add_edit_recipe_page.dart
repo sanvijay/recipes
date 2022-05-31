@@ -154,7 +154,11 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
       }
     }
 
-    if (errors.isNotEmpty) { return; }
+    if (errors.isNotEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Fill all the required fields")));
+      return;
+    }
 
     SharedPreferences pref = await SharedPreferences.getInstance();
     String? token = pref.getString('auth:access_token');
@@ -180,10 +184,10 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
       values['cuisine'],
     );
 
-    bool success = await newRecipe.saveToCloud(token);
+    Map response = await newRecipe.saveToCloud(token);
 
     ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(success ? "Saved Successfully!" : "Some error occurred!")));
+        .showSnackBar(SnackBar(content: Text(response["success"] ? "Saved Successfully!" : response["error"])));
   }
 
   List<Widget> ingredientInputList() {

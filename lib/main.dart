@@ -15,6 +15,9 @@ import 'package:recipes/pages/add_edit_recipe_page.dart';
 import 'package:recipes/pages/register_page.dart';
 import 'package:recipes/pages/search_page.dart';
 import 'package:recipes/pages/settings_page.dart';
+import 'package:recipes/pages/confirm_email_page.dart';
+import 'package:recipes/pages/reset_password_page.dart';
+import 'package:recipes/pages/change_password_page.dart';
 
 // Import Theme
 import 'package:recipes/theme_manager.dart';
@@ -80,6 +83,9 @@ class _MyAppState extends State<MyApp> {
                 '/search': (context) => const SearchPage(),
                 '/settings': (context) => const SettingsPage(),
                 '/play-recipe': (context) => const PlayRecipePage(),
+                '/confirm-email': (context) => const ConfirmEmailPage(),
+                '/reset-password': (context) => const ResetPasswordPage(),
+                '/change-password': (context) => const ChangePasswordPage(),
               },
             )
         )

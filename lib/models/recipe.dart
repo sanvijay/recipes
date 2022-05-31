@@ -1,6 +1,7 @@
 import 'package:http/http.dart';
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:recipes/pages/play_recipe_page.dart';
 
 class Recipe {
   String slug;
@@ -64,7 +65,7 @@ class Recipe {
     this.authorLastName = authorLastName;
   }
 
-  Future<bool> saveToCloud(String token) async {
+  Future<Map> saveToCloud(String token) async {
     try {
       String url = slug == ''
           ? '${dotenv.env['API_URL']}/recipe/new'
@@ -87,11 +88,25 @@ class Recipe {
         'Content-type': 'application/json'
       });
 
+      if (response.statusCode ~/ 100 == 2) {
+        Map data = jsonDecode(response.body);
+        slug = data['slug'];
+
+        return {
+          "success": true,
+        };
+      }
+
       Map data = jsonDecode(response.body);
-      slug = data['slug'];
-      return true;
+      return {
+        "success": false,
+        "error": data["errors"].map((err) => err["messages"][0]).join(", ")
+      };
     } catch (e) {
-      return false;
+      return {
+        "success": false,
+        "error": "Some error occurred!"
+      };
     }
   }
 }

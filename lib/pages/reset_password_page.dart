@@ -7,54 +7,41 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 // Import Services
 import 'package:recipes/services/auth_service.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+class ResetPasswordPage extends StatefulWidget {
+  const ResetPasswordPage({Key? key}) : super(key: key);
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _ResetPasswordPageState createState() => _ResetPasswordPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _ResetPasswordPageState extends State<ResetPasswordPage> {
   String? email;
-  String? password;
 
-  bool isLoggedIn = false;
+  void resetPassword(String email) async {
+    var resBody = {};
+    resBody["email"] = email;
+    var user = {};
+    user["user"] = resBody;
+    String str = jsonEncode(user);
 
-  void login(String email, String password) async {
-    var response = await post(Uri.parse('${dotenv.env['API_URL']}/oauth/token'), body: {
-      "email": email,
-      "password": password,
-      "grant_type": "password",
-      "client_id": dotenv.env['API_CLIENT_ID'],
-      "client_secret": dotenv.env['API_CLIENT_SECRET'],
-    });
+    var response = await post(Uri.parse('${dotenv.env['API_URL']}/users/password'),
+        headers: { 'Content-type': 'application/json' },
+        body: str
+    );
 
     if (response.statusCode == 200) {
-      final body = jsonDecode(response.body);
-      AuthService auth = AuthService();
-      auth.setAuthDetails(body['access_token'], body['refresh_token']);
-      Navigator.of(context).pushReplacementNamed('/');
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Reset instructions sent to your email!")));
     }
     else {
       ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text("Invalid Credentials")));
-    }
-  }
-
-  void setLoggedInDetails()async {
-    AuthService auth = AuthService();
-    isLoggedIn = await auth.isLoggedIn();
-
-    if (isLoggedIn) {
-      Navigator.of(context)
-          .pushNamedAndRemoveUntil('/profile', (Route<dynamic> route) => false);
+          .showSnackBar(const SnackBar(content: Text("Some error occurred!")));
     }
   }
 
   @override
   void initState() {
     super.initState();
-    setLoggedInDetails();
   }
 
   @override
@@ -62,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
     return Container(
       decoration: const BoxDecoration(
         image: DecorationImage(
-          image: AssetImage('assets/images/login_bg.png'), fit: BoxFit.cover),
+            image: AssetImage('assets/images/login_bg.png'), fit: BoxFit.cover),
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -75,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
             Container(
               padding: const EdgeInsets.only(left: 35, top: 60),
               child: const Text(
-                'Welcome\nBack',
+                'Reset\nPassword',
                 style: TextStyle(color: Colors.white, fontSize: 33),
               ),
             ),
@@ -92,39 +79,13 @@ class _LoginPageState extends State<LoginPage> {
                         children: [
                           TextField(
                             style: const TextStyle(
-                              color: Colors.white
+                                color: Colors.white
                             ),
                             onChanged: (email) {
                               this.email = email;
                             },
                             decoration: InputDecoration(
-                              hintText: "Email",
-                              hintStyle: const TextStyle(color: Colors.white),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: const BorderSide(
-                                  color: Colors.white,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: const BorderSide(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 30,),
-                          TextField(
-                            style: const TextStyle(
-                              color: Colors.white,
-                            ),
-                            obscureText: true,
-                            onChanged: (password) {
-                              this.password = password;
-                            },
-                            decoration: InputDecoration(
-                              hintText: "Password",
+                              hintText: "Enter Email",
                               hintStyle: const TextStyle(color: Colors.white),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
@@ -145,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text(
-                                'Sign in',
+                                'Submit',
                                 style: TextStyle(
                                   fontSize: 27,
                                   fontWeight: FontWeight.w700,
@@ -156,18 +117,18 @@ class _LoginPageState extends State<LoginPage> {
                                 radius: 30,
                                 backgroundColor: const Color(0xff4c505b),
                                 child: IconButton(
-                                  color: Colors.white,
-                                  onPressed: () {
-                                    if (email == null || email == '' || password == null || password == '') {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(const SnackBar(content: Text("Please enter email and password")));
-                                      return;
-                                    }
-                                    login(email!, password!);
-                                  },
-                                  icon: const Icon(
-                                    Icons.arrow_forward,
-                                  )
+                                    color: Colors.white,
+                                    onPressed: () {
+                                      if (email == null || email == '') {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(const SnackBar(content: Text("Please enter email")));
+                                        return;
+                                      }
+                                      resetPassword(email!);
+                                    },
+                                    icon: const Icon(
+                                      Icons.arrow_forward,
+                                    )
                                 ),
                               )
                             ],
@@ -178,30 +139,31 @@ class _LoginPageState extends State<LoginPage> {
                             children: [
                               TextButton(
                                 onPressed: () {
-                                  Navigator.pushNamed(context, '/register');
+                                  Navigator.pop(context);
                                 },
                                 child: const Text(
-                                  'Sign Up',
+                                  'Back',
                                   textAlign: TextAlign.left,
                                   style: TextStyle(
-                                    decoration: TextDecoration.underline,
-                                    color: Colors.white,
-                                    fontSize: 18),
+                                      decoration: TextDecoration.underline,
+                                      color: Colors.white,
+                                      fontSize: 18),
                                 ),
                                 style: const ButtonStyle(),
                               ),
                               TextButton(
                                 onPressed: () {
-                                  Navigator.pushNamed(context, '/reset-password');
+                                  Navigator.pushNamed(context, '/change-password');
                                 },
                                 child: const Text(
-                                  'Forgot Password?',
+                                  'Have reset token',
+                                  textAlign: TextAlign.left,
                                   style: TextStyle(
-                                    decoration: TextDecoration.underline,
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                  ),
-                                )
+                                      decoration: TextDecoration.underline,
+                                      color: Colors.white,
+                                      fontSize: 18),
+                                ),
+                                style: const ButtonStyle(),
                               ),
                             ],
                           )

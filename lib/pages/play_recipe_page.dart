@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -99,11 +98,11 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
   Widget ingredientCard(Map ingredient) {
     double quantity = ingredient['quantity'] * (noOfServings / recipe!.servings!);
 
-    return Container(
+    return SizedBox(
       width: MediaQuery.of(context).size.width,
       child: Card(
         color: Colors.grey,
-        margin: EdgeInsets.all(8.0),
+        margin: const EdgeInsets.all(8.0),
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Row(
@@ -128,7 +127,7 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
                   ],
                 ),
                 Text(
-                  quantity.toStringAsFixed(2) + " " + ingredient['unit'],
+                  numberToString(quantity) + " " + ingredient['unit'],
                   style: const TextStyle(
                     fontSize: 20
                   ),
@@ -140,6 +139,12 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
     );
   }
 
+  String numberToString(double value) {
+    double roundValue = value.roundToDouble();
+
+    return value == roundValue ? value.toStringAsFixed(0) : value.toString();
+  }
+
   Widget buildIngredientChecklistPage() {
     return Scaffold(
       appBar: AppBar(
@@ -149,22 +154,22 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
           color: isDarkMode ? Colors.white : Colors.black,
         ),
       ),
-      body: SingleChildScrollView(
+      body: ingredients.isEmpty ? const Center(child: Text("Loading..."),) : SingleChildScrollView(
         child: Column(
           children: [
-            Container(
+            SizedBox(
               width: MediaQuery.of(context).size.width,
               child: Card(
                 color: Colors.grey,
-                margin: EdgeInsets.all(8.0),
+                margin: const EdgeInsets.all(8.0),
                 child: Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         "Servings",
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20
                         ),
@@ -172,19 +177,16 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
                       Row(
                         children: [
                           ElevatedButton(
-                            style: ButtonStyle(
-                              foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-                            ),
                             onPressed: () {
                               setState(() {
                                 noOfServings--;
                                 if (noOfServings <= 1) noOfServings = 1;
                               });
                             },
-                            child: Icon(Icons.remove,),
+                            child: const Icon(Icons.remove,),
                           ),
                           Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 12.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
                             child: Text(
                               noOfServings.toString(),
                               style: const TextStyle(
@@ -193,15 +195,12 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
                             ),
                           ),
                           ElevatedButton(
-                            style: ButtonStyle(
-                              foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-                            ),
                             onPressed: () {
                               setState(() {
                                 noOfServings++;
                               });
                             },
-                            child: Icon(Icons.add,),
+                            child: const Icon(Icons.add,),
                           )
                         ],
                       ),
@@ -210,15 +209,15 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
                 ),
               ),
             ),
-            Text(
+            const Text(
               "Get ready with ingredients",
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
             ...ingredients.map((ing) => ingredientCard(ing)).toList(),
-            SizedBox(height: 80,)
+            const SizedBox(height: 80,)
           ],
         ),
       ),
@@ -229,10 +228,11 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
           FloatingActionButton.extended(
             heroTag: 'checkAll',
             onPressed: () {
-              if (areAllIngredientChecked())
+              if (areAllIngredientChecked()) {
                 uncheckAllIngredients();
-              else
+              } else {
                 checkAllIngredients();
+              }
             },
             icon: const Icon(Icons.check_circle_outline_outlined,),
             label: Text(areAllIngredientChecked() ? "Uncheck all" : "Check all"),
@@ -315,7 +315,7 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
               icon: const Icon(
                 Icons.arrow_left,
               ),
-              label: Text("Previous"),
+              label: const Text("Previous"),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -336,7 +336,7 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
               icon: const Icon(
                 Icons.arrow_right,
               ),
-              label: Text("Next"),
+              label: const Text("Next"),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -377,7 +377,7 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
             icon: const Icon(
               Icons.arrow_left,
             ),
-            label: Text("Previous"),
+            label: const Text("Previous"),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),

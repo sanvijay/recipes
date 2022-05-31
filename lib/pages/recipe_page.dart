@@ -264,14 +264,9 @@ class RecipeDetails extends StatelessWidget {
             ],
           )
         ),
-        Container(
+        Padding(
           padding: const EdgeInsets.all(10.0),
-          child: Table(
-            columnWidths: const <int, TableColumnWidth>{
-              0: FlexColumnWidth(4.0),
-              1: FlexColumnWidth(1.0),
-              2: FlexColumnWidth(1.0),
-            },
+          child: Column(
             children: recipe!.ingredients!.map((ing) => ingredientTableRow(ing)).toList(),
           ),
         ),
@@ -303,9 +298,9 @@ class RecipeDetails extends StatelessWidget {
                     size: 36,
                   ),
                   Icon(
-                      Icons.circle,
-                      color: recipe?.dietType == "veg" ? Colors.green : Colors.red,
-                      size: 14
+                    Icons.circle,
+                    color: recipe?.dietType == "veg" ? Colors.green : Colors.red,
+                    size: 14
                   ),
                 ],
               ),
@@ -356,23 +351,44 @@ class RecipeDetails extends StatelessWidget {
     );
   }
 
-  TableRow ingredientTableRow(Map ingredient) {
-    return TableRow(
+  Widget ingredientTableRow(Map ingredient) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-            child: Text(ingredient['title'], textAlign: TextAlign.left,),
-          ),
-          Text(ingredient['quantity'].toString(), textAlign: TextAlign.left,),
-          Text(ingredient['unit'], textAlign: TextAlign.left,),
+          Text(ingredient['title'], textAlign: TextAlign.left,),
+          Expanded(child: Text('.' * 100, maxLines: 1)),
+          Text(numberToString(ingredient['quantity']) + " " + ingredient['unit'], textAlign: TextAlign.left,),
         ]
+      ),
     );
+  }
+
+  String numberToString(num value) {
+    double roundValue = value.roundToDouble();
+
+    return value == roundValue ? value.toStringAsFixed(0) : value.toString();
   }
 
   Widget instructionStep(Map instruction) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Text("Step ${instruction['order'] + 1}: ${instruction['value']}", textAlign: TextAlign.left,),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 4),
+            child: Text("Step ${instruction['order'] + 1}",
+              textAlign: TextAlign.left,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                // decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+          Text(instruction['value']),
+        ],
+      ),
     );
   }
 }
