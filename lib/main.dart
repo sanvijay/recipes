@@ -18,6 +18,7 @@ import 'package:recipes/pages/settings_page.dart';
 import 'package:recipes/pages/confirm_email_page.dart';
 import 'package:recipes/pages/reset_password_page.dart';
 import 'package:recipes/pages/change_password_page.dart';
+import 'package:recipes/pages/feedback_page.dart';
 
 // Import Theme
 import 'package:recipes/theme_manager.dart';
@@ -41,12 +42,15 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    final newVersion = NewVersion(
-      androidId: 'com.fireflies.kuky',
-    );
     showRating();
-
-    newVersion.showAlertIfNecessary(context: context);
+    try {
+      final newVersion = NewVersion(
+        androidId: 'com.fireflies.kuky',
+      );
+      newVersion.showAlertIfNecessary(context: context);
+    } catch (e) {
+      // TODO: fix this
+    }
   }
 
   void showRating() {
@@ -86,6 +90,7 @@ class _MyAppState extends State<MyApp> {
                 '/confirm-email': (context) => const ConfirmEmailPage(),
                 '/reset-password': (context) => const ResetPasswordPage(),
                 '/change-password': (context) => const ChangePasswordPage(),
+                '/feedback': (context) => const FeedbackPage(),
               },
             )
         )

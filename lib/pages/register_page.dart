@@ -52,7 +52,6 @@ class _RegisterPageState extends State<RegisterPage> {
       }
       else {
         Map body = jsonDecode(response.body);
-        print(body["email"][0]);
         if (body["email"].any((e) => (e as String).contains("has already been taken"))) {
           ScaffoldMessenger.of(context)
               .showSnackBar(const SnackBar(content: Text("Already registered!")));
@@ -63,11 +62,9 @@ class _RegisterPageState extends State<RegisterPage> {
             .showSnackBar(const SnackBar(content: Text("Some error occurred!")));
       }
     } catch (e) {
-      print(e);
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text("Some error occurred!")));
     }
-
   }
 
   @override

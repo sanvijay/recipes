@@ -1,7 +1,6 @@
 import 'package:http/http.dart';
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:recipes/pages/play_recipe_page.dart';
 
 class Recipe {
   String slug;

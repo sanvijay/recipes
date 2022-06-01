@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -8,7 +12,64 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  bool showPassword = false;
+  String? token;
+
+  TextEditingController firstNameTxtCntl = TextEditingController();
+  TextEditingController lastNameTxtCntl = TextEditingController();
+
+  void setUserDetails(String firstName, String lastName) async {
+    if (firstName.isEmpty || lastName.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Fill all fields")));
+      return;
+    }
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    token = pref.getString('auth:access_token');
+
+    try {
+      String url = '${dotenv.env['API_URL']}/user/update';
+      Uri baseUri = Uri.parse(url);
+      Uri uri = baseUri.replace(queryParameters: {
+        'first_name': firstName,
+        'last_name': lastName,
+      });
+      Response response =
+          await post(uri, headers: {
+            'Authorization': 'Bearer $token',
+            'Content-type': 'application/json'
+          });
+
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Updated Successfully!")));
+
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text("Some error occurred! Please try again later!")));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Some error occurred! Please try again later!")));
+    }
+  }
+
+  void getUserDetails() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    token = pref.getString('auth:access_token');
+    Uri uri = Uri.parse('${dotenv.env['API_URL']}/user/current');
+    Response response = await get(uri, headers: { 'Authorization': 'Bearer $token' });
+
+    Map data = jsonDecode(response.body);
+
+    firstNameTxtCntl.text = data["first_name"];
+    lastNameTxtCntl.text = data["last_name"];
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getUserDetails();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,22 +137,21 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(
                 height: 35,
               ),
-              buildTextField("First Name", "", false),
-              buildTextField("Last Name", "", false),
-              buildTextField("E-mail", "", false),
-              buildTextField("Password", "", true),
+              buildTextField("First Name", firstNameTxtCntl),
+              buildTextField("Last Name", lastNameTxtCntl),
               const SizedBox(
                 height: 35,
               ),
               Center(
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    setUserDetails(firstNameTxtCntl.text, lastNameTxtCntl.text);
+                  },
                   child: const Text(
-                    "SAVE",
+                    "Save",
                     style: TextStyle(
                       fontSize: 14,
                       letterSpacing: 2.2,
-                      color: Colors.white
                     ),
                   ),
                 ),
@@ -103,35 +163,21 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget buildTextField(
-      String labelText, String placeholder, bool isPasswordTextField) {
+  Widget buildTextField(String labelText, TextEditingController controller) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 35.0),
       child: TextField(
-        obscureText: isPasswordTextField ? showPassword : false,
+        controller: controller,
+        obscureText: false,
         decoration: InputDecoration(
-            suffixIcon: isPasswordTextField
-                ? IconButton(
-                  onPressed: () {
-                    setState(() {
-                      showPassword = !showPassword;
-                    });
-                  },
-                  icon: const Icon(
-                    Icons.remove_red_eye,
-                    color: Colors.grey,
-                  ),
-                )
-                : null,
-            contentPadding: const EdgeInsets.only(bottom: 3),
-            labelText: labelText,
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-            hintText: placeholder,
-            hintStyle: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            )),
+          contentPadding: const EdgeInsets.only(bottom: 3),
+          labelText: labelText,
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          hintStyle: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          )
+        ),
       ),
     );
   }

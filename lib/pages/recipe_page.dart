@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:recipes/models/recipe.dart';
 
 // Import controllers
-import '../controllers/recipes_controller.dart';
+import 'package:recipes/controllers/recipes_controller.dart';
 
 // Import Services
 import 'package:recipes/services/auth_service.dart';

@@ -35,18 +35,6 @@ class _LeftDrawerState extends State<LeftDrawer> {
         child: null,
       ),
     );
-    //
-    // if (isLoggedIn) {
-    //   drawerList.add(
-    //     ListTile(
-    //       leading: const Icon(Icons.person),
-    //       title: const Text('Profile'),
-    //       onTap: () {
-    //         Navigator.pushNamed(context, '/profile');
-    //       },
-    //     )
-    //   );
-    // }
 
     drawerList.add(
       ListTile(
@@ -57,6 +45,18 @@ class _LeftDrawerState extends State<LeftDrawer> {
         },
       ),
     );
+
+    if (isLoggedIn) {
+      drawerList.add(
+          ListTile(
+            leading: const Icon(Icons.person),
+            title: const Text('Profile'),
+            onTap: () {
+              Navigator.pushNamed(context, '/profile');
+            },
+          )
+      );
+    }
 
     if (!isLoggedIn) {
       drawerList.add(
@@ -99,15 +99,25 @@ class _LeftDrawerState extends State<LeftDrawer> {
 
     drawerList.add(
         ListTile(
-          leading: const Icon(Icons.star),
-          title: const Text('Rate our app!'),
+          leading: const Icon(Icons.feedback_outlined),
+          title: const Text('Feedback'),
           onTap: () {
-            if(!ratingService.openRating()) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(const SnackBar(content: Text("Try again later!")));
-            }
+            Navigator.pushNamed(context, '/feedback');
           },
         )
+    );
+
+    drawerList.add(
+      ListTile(
+        leading: const Icon(Icons.star),
+        title: const Text('Rate our app!'),
+        onTap: () {
+          if(!ratingService.openRating()) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(const SnackBar(content: Text("Try again later!")));
+          }
+        },
+      )
     );
 
     setState(() {
