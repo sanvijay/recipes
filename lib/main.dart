@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:new_version/new_version.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 // Import Pages
 import 'package:recipes/pages/home_page.dart';
@@ -28,6 +29,9 @@ import 'package:recipes/services/rating_service.dart';
 void main() async {
   await dotenv.load(fileName: ".env");
 
+  WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
+
   runApp(const MyApp());
 }
 
@@ -43,6 +47,10 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     showRating();
+    newVersionCheck();
+  }
+
+  newVersionCheck() async {
     try {
       final newVersion = NewVersion(
         androidId: 'com.fireflies.kuky',
@@ -50,6 +58,7 @@ class _MyAppState extends State<MyApp> {
       newVersion.showAlertIfNecessary(context: context);
     } catch (e) {
       // TODO: fix this
+      print("Error on newVersion: $e");
     }
   }
 

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // Import controllers
 import 'package:recipes/controllers/recipes_controller.dart';
@@ -30,6 +32,9 @@ class _HomePageState extends State<HomePage> {
   int _page = 1;
   bool loadMorePage = true;
 
+  late BannerAd _ad;
+  bool adLoaded = false;
+
   AuthService auth = AuthService();
   Future<void> getAllRecipes(page) async {
 
@@ -46,6 +51,22 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     getAllRecipes(_page);
 
+    _ad = BannerAd(
+      size: AdSize.fullBanner,
+      adUnitId: dotenv.env['BANNER_AD_UNIT_ID'] ?? "",
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            adLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (_, error) {
+          print('Ad failed: $error');
+        }
+      ),
+      request: const AdRequest()
+    )..load();
+
     _scrollController.addListener(() async {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
@@ -60,6 +81,18 @@ class _HomePageState extends State<HomePage> {
         }
       }
     });
+  }
+
+  Widget checkForAd() {
+    if (adLoaded) {
+      return SizedBox(
+        height: _ad.size.height.toDouble(),
+        width: _ad.size.width.toDouble(),
+        child: AdWidget(ad: _ad,),
+      );
+    } else {
+      return const SizedBox.shrink();
+    }
   }
 
   Widget recipeCardBuilder(MapEntry e) {
@@ -94,6 +127,20 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  List<Widget> recipesWithAd() {
+    Iterable<Widget> recipeWidgets = allRecipes.asMap().entries.map((recipeEntry) => recipeCardBuilder(recipeEntry));
+    List<Widget> recipes = [];
+
+    for(int i = 0; i < recipeWidgets.length; i++) {
+      recipes.add(recipeWidgets.elementAt(i));
+      if (i == 2) {
+        recipes.add(checkForAd());
+      }
+    }
+
+    return recipes;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,7 +154,7 @@ class _HomePageState extends State<HomePage> {
         ListView(
           controller: _scrollController,
           children: [
-            ...allRecipes.asMap().entries.map((recipeEntry) => recipeCardBuilder(recipeEntry)).toList(),
+            ...recipesWithAd(),
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: loadMorePage ? const Text("Cooking more recipes...", textAlign: TextAlign.center,) : Column(
@@ -115,14 +162,14 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   const Text('You reached the end. Do you want to add your magic recipe?'),
                   TextButton(
-                      onPressed: () { Navigator.pushNamed(context, '/add-edit-recipe', arguments: {}); },
-                      child: const Text(
-                        'Add your recipe',
-                        style: TextStyle(
-                          decoration: TextDecoration.underline,
-                          fontSize: 18,
-                        ),
-                      )
+                    onPressed: () { Navigator.pushNamed(context, '/add-edit-recipe', arguments: {}); },
+                    child: const Text(
+                      'Add your recipe',
+                      style: TextStyle(
+                        decoration: TextDecoration.underline,
+                        fontSize: 18,
+                      ),
+                    )
                   ),
                 ],
               ),

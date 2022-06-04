@@ -18,7 +18,7 @@ class ThemeNotifier with ChangeNotifier {
       } else if (themeMode == 'dark') {
         _themeData = ThemeKlass.darkTheme;
       } else if (themeMode == 'system') {
-        var brightness = SchedulerBinding.instance!.window.platformBrightness;
+        var brightness = SchedulerBinding.instance.window.platformBrightness;
         bool isDarkMode = brightness == Brightness.dark;
 
         _themeData = isDarkMode ? ThemeKlass.darkTheme : ThemeKlass.lightTheme;
@@ -38,7 +38,7 @@ class ThemeNotifier with ChangeNotifier {
       return true;
     }
     else if (darkTheme == 'system') {
-      var brightness = SchedulerBinding.instance!.window.platformBrightness;
+      var brightness = SchedulerBinding.instance.window.platformBrightness;
       return brightness == Brightness.dark;
     }
 
@@ -60,7 +60,7 @@ class ThemeNotifier with ChangeNotifier {
   }
 
   void setSystemMode() async {
-    var brightness = SchedulerBinding.instance!.window.platformBrightness;
+    var brightness = SchedulerBinding.instance.window.platformBrightness;
     bool isDarkMode = brightness == Brightness.dark;
 
     _themeData = isDarkMode ? ThemeKlass.darkTheme : ThemeKlass.lightTheme;

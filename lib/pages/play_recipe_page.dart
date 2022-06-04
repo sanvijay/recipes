@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // Import models
 import 'package:recipes/models/recipe.dart';
@@ -24,11 +26,42 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
   int noOfServings = 1;
   List instructions = [];
 
+  late BannerAd _ad;
+  bool adLoaded = false;
+
   @override
   void initState() {
     super.initState();
 
     setDarkMode();
+
+    _ad = BannerAd(
+        size: AdSize.fullBanner,
+        adUnitId: dotenv.env['BANNER_AD_UNIT_ID'] ?? "",
+        listener: BannerAdListener(
+            onAdLoaded: (_) {
+              setState(() {
+                adLoaded = true;
+              });
+            },
+            onAdFailedToLoad: (_, error) {
+              print('Ad failed: $error');
+            }
+        ),
+        request: const AdRequest()
+    )..load();
+  }
+
+  Widget checkForAd() {
+    if (adLoaded) {
+      return SizedBox(
+        height: _ad.size.height.toDouble(),
+        width: _ad.size.width.toDouble(),
+        child: AdWidget(ad: _ad,),
+      );
+    } else {
+      return const SizedBox.shrink();
+    }
   }
 
   void setDarkMode() async {
@@ -154,6 +187,7 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
           color: isDarkMode ? Colors.white : Colors.black,
         ),
       ),
+      bottomNavigationBar: checkForAd(),
       body: ingredients.isEmpty ? const Center(child: Text("Loading..."),) : SingleChildScrollView(
         child: Column(
           children: [

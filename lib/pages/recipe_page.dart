@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // Import models
 import 'package:recipes/models/recipe.dart';
@@ -22,6 +24,11 @@ class _RecipePageState extends State<RecipePage> {
   Map data = {};
   Recipe? recipe;
   Map currentUser = {};
+
+  late BannerAd _ad;
+  late InterstitialAd _interstitialAd;
+  bool adLoaded = false;
+  bool intAdLoaded = false;
 
   getRecipeDetails(String slug, { bool force = false }) async {
     if (recipe != null && !force) return;
@@ -48,6 +55,43 @@ class _RecipePageState extends State<RecipePage> {
   void initState() {
     super.initState();
     setCurrentUser();
+
+    loadAds();
+  }
+
+  void loadAds() async {
+    _ad = BannerAd(
+        size: AdSize.fullBanner,
+        adUnitId: dotenv.env['BANNER_AD_UNIT_ID'] ?? "",
+        listener: BannerAdListener(
+            onAdLoaded: (_) {
+              setState(() {
+                adLoaded = true;
+              });
+            },
+            onAdFailedToLoad: (_, error) {
+              print('Ad failed: $error');
+            }
+        ),
+        request: const AdRequest()
+    )..load();
+
+    InterstitialAd.load(
+      adUnitId: dotenv.env['INTERSTITIAL_AD_UNIT_ID'] ?? "",
+      request: AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (InterstitialAd ad) {
+          // Keep a reference to the ad so you can show it later.
+          _interstitialAd = ad;
+          setState(() {
+            intAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          print('InterstitialAd failed to load: $error');
+        },
+      )
+    );
   }
 
   @override
@@ -58,6 +102,9 @@ class _RecipePageState extends State<RecipePage> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          if (intAdLoaded) {
+            _interstitialAd.show();
+          }
           // ScaffoldMessenger.of(context)
           //     .showSnackBar(const SnackBar(content: Text("New feature coming soon!")));
           Navigator.pushNamed(
@@ -126,7 +173,7 @@ class _RecipePageState extends State<RecipePage> {
             await Future.delayed(const Duration(seconds: 2));
             getRecipeDetails(data['slug'], force: true);
           },
-          child: SingleChildScrollView(child: RecipeDetails(recipe: recipe))
+          child: SingleChildScrollView(child: RecipeDetails(recipe: recipe, bannerAd: _ad, adLoaded: adLoaded,))
         )
     );
   }
@@ -136,9 +183,13 @@ class RecipeDetails extends StatelessWidget {
   const RecipeDetails({
     Key? key,
     required this.recipe,
+    required this.bannerAd,
+    required this.adLoaded,
   }) : super(key: key);
 
   final Recipe? recipe;
+  final BannerAd? bannerAd;
+  final bool? adLoaded;
 
   @override
   Widget build(BuildContext context) {
@@ -324,9 +375,7 @@ class RecipeDetails extends StatelessWidget {
             }).toList()
           ),
         ),
-        const Divider(
-          thickness: 2.0,
-        ),
+        checkForAd(),
         Container(
           width: MediaQuery.of(context).size.width,
           padding: const EdgeInsets.all(10.0),
@@ -349,6 +398,18 @@ class RecipeDetails extends StatelessWidget {
         const SizedBox(height: 60.0,)
       ],
     );
+  }
+
+  Widget checkForAd() {
+    if (bannerAd != null && adLoaded == true) {
+      return SizedBox(
+        height: bannerAd!.size.height.toDouble(),
+        width: bannerAd!.size.width.toDouble(),
+        child: AdWidget(ad: bannerAd!,),
+      );
+    } else {
+      return const SizedBox.shrink();
+    }
   }
 
   Widget ingredientTableRow(Map ingredient) {
