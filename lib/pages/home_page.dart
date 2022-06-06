@@ -37,7 +37,6 @@ class _HomePageState extends State<HomePage> {
 
   AuthService auth = AuthService();
   Future<void> getAllRecipes(page) async {
-
     String? token = await auth.accessToken();
     await recipesController.getData(page, token ?? '');
     List<Recipe> allRecipes = recipesController.list;

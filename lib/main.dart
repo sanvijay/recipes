@@ -20,6 +20,7 @@ import 'package:recipes/pages/confirm_email_page.dart';
 import 'package:recipes/pages/reset_password_page.dart';
 import 'package:recipes/pages/change_password_page.dart';
 import 'package:recipes/pages/feedback_page.dart';
+import 'package:recipes/pages/about_us_page.dart';
 
 // Import Theme
 import 'package:recipes/theme_manager.dart';
@@ -100,6 +101,7 @@ class _MyAppState extends State<MyApp> {
                 '/reset-password': (context) => const ResetPasswordPage(),
                 '/change-password': (context) => const ChangePasswordPage(),
                 '/feedback': (context) => const FeedbackPage(),
+                '/about-us': (context) => const AboutUsPage(),
               },
             )
         )

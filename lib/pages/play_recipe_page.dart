@@ -134,16 +134,16 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
     return SizedBox(
       width: MediaQuery.of(context).size.width,
       child: Card(
-        color: Colors.grey,
         margin: const EdgeInsets.all(8.0),
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
                     Checkbox(
+                      shape: CircleBorder(),
                       value: ingredient['checked'] ?? false,
                       onChanged: (val) {
                         setState(() {
@@ -154,7 +154,7 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
                     Text(
                       ingredient['title'],
                       style: const TextStyle(
-                          fontSize: 20
+                          fontSize: 16
                       ),
                     ),
                   ],
@@ -162,7 +162,7 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
                 Text(
                   numberToString(quantity) + " " + ingredient['unit'],
                   style: const TextStyle(
-                    fontSize: 20
+                    fontSize: 16
                   ),
                 ),
               ]
@@ -175,17 +175,19 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
   String numberToString(double value) {
     double roundValue = value.roundToDouble();
 
-    return value == roundValue ? value.toStringAsFixed(0) : value.toString();
+    return value == roundValue ? value.toStringAsFixed(0) : value.toStringAsFixed(2);
   }
 
   Widget buildIngredientChecklistPage() {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: BackButton(
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () => Navigator.of(context).pop(),
           color: isDarkMode ? Colors.white : Colors.black,
         ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       bottomNavigationBar: checkForAd(),
       body: ingredients.isEmpty ? const Center(child: Text("Loading..."),) : SingleChildScrollView(
@@ -194,7 +196,6 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
             SizedBox(
               width: MediaQuery.of(context).size.width,
               child: Card(
-                color: Colors.grey,
                 margin: const EdgeInsets.all(8.0),
                 child: Padding(
                   padding: const EdgeInsets.all(12.0),
@@ -211,6 +212,12 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
                       Row(
                         children: [
                           ElevatedButton(
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.resolveWith((state) => Colors.orange),
+                              shape: MaterialStateProperty.all<CircleBorder>(
+                                const CircleBorder()
+                              )
+                            ),
                             onPressed: () {
                               setState(() {
                                 noOfServings--;
@@ -229,6 +236,12 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
                             ),
                           ),
                           ElevatedButton(
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.resolveWith((state) => Colors.orange),
+                              shape: MaterialStateProperty.all<CircleBorder>(
+                                const CircleBorder()
+                              )
+                            ),
                             onPressed: () {
                               setState(() {
                                 noOfServings++;
@@ -260,6 +273,7 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           FloatingActionButton.extended(
+            backgroundColor: Colors.orange,
             heroTag: 'checkAll',
             onPressed: () {
               if (areAllIngredientChecked()) {
@@ -275,6 +289,7 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
             ),
           ),
           FloatingActionButton.extended(
+            backgroundColor: Colors.orange,
             heroTag: 'startCooking',
             onPressed: () {
               if (!areAllIngredientChecked()) {
@@ -309,7 +324,9 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          leading: BackButton(
+          leading: IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () => Navigator.of(context).pop(),
             color: isDarkMode ? Colors.white : Colors.black,
           ),
         ),
@@ -342,6 +359,7 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             FloatingActionButton.extended(
+              backgroundColor: Colors.orange,
               heroTag: 'previous',
               onPressed: () {
                 movePrevState();
@@ -363,6 +381,7 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
             //   ),
             // ),
             FloatingActionButton.extended(
+              backgroundColor: Colors.orange,
               heroTag: 'next',
               onPressed: () {
                 moveNextState();
@@ -385,7 +404,9 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: BackButton(
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () => Navigator.of(context).pop(),
           color: isDarkMode ? Colors.white : Colors.black,
         ),
       ),
@@ -404,6 +425,7 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           FloatingActionButton.extended(
+            backgroundColor: Colors.orange,
             heroTag: 'previous',
             onPressed: () {
               movePrevState();
@@ -417,6 +439,7 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
             ),
           ),
           FloatingActionButton.extended(
+            backgroundColor: Colors.orange,
             heroTag: 'action',
             onPressed: () {
               Navigator.pop(context);

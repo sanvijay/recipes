@@ -38,6 +38,16 @@ class _LeftDrawerState extends State<LeftDrawer> {
 
     drawerList.add(
       ListTile(
+        leading: const Icon(Icons.home),
+        title: const Text('Home'),
+        onTap: () {
+          Navigator.pushNamed(context, '/');
+        },
+      ),
+    );
+
+    drawerList.add(
+      ListTile(
         leading: const Icon(Icons.settings),
         title: const Text('Settings'),
         onTap: () {
@@ -57,6 +67,39 @@ class _LeftDrawerState extends State<LeftDrawer> {
           )
       );
     }
+
+    drawerList.add(
+      ListTile(
+        leading: const Icon(Icons.feedback_outlined),
+        title: const Text('Feedback'),
+        onTap: () {
+          Navigator.pushNamed(context, '/feedback');
+        },
+      )
+    );
+
+    drawerList.add(
+      ListTile(
+        leading: const Icon(Icons.people_outline_rounded),
+        title: const Text('About Us'),
+        onTap: () {
+          Navigator.pushNamed(context, '/about-us');
+        },
+      )
+    );
+
+    drawerList.add(
+      ListTile(
+        leading: const Icon(Icons.star),
+        title: const Text('Rate our app!'),
+        onTap: () {
+          if(!ratingService.openRating()) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(const SnackBar(content: Text("Try again later!")));
+          }
+        },
+      )
+    );
 
     if (!isLoggedIn) {
       drawerList.add(
@@ -96,29 +139,6 @@ class _LeftDrawerState extends State<LeftDrawer> {
           )
       );
     }
-
-    drawerList.add(
-        ListTile(
-          leading: const Icon(Icons.feedback_outlined),
-          title: const Text('Feedback'),
-          onTap: () {
-            Navigator.pushNamed(context, '/feedback');
-          },
-        )
-    );
-
-    drawerList.add(
-      ListTile(
-        leading: const Icon(Icons.star),
-        title: const Text('Rate our app!'),
-        onTap: () {
-          if(!ratingService.openRating()) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(const SnackBar(content: Text("Try again later!")));
-          }
-        },
-      )
-    );
 
     setState(() {
       isLoggedIn = isLoggedIn;

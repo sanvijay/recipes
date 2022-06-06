@@ -57,7 +57,6 @@ class _FeedbackPageState extends State<FeedbackPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        bottomNavigationBar: const BottomNavigator(currentIndex: 1,),
         drawer: const LeftDrawer(),
         appBar: AppBar(
           title: const Text('Feedback'),

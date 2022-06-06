@@ -366,7 +366,7 @@ class RecipeDetails extends StatelessWidget {
               return Container(
                 padding: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
                 margin: EdgeInsets.fromLTRB(0, 0, 8, 0),
-                child: Text(tag),
+                child: Text(tag, style: TextStyle(color: Colors.black),),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
                   color: Colors.orangeAccent,

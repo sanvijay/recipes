@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 
 import 'package:recipes/theme_manager.dart';
 
+import 'package:recipes/components/left_drawer.dart';
+
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
 
@@ -38,6 +40,7 @@ class _SettingsPageState extends State<SettingsPage> {
           'Settings',
         ),
       ),
+      drawer: const LeftDrawer(),
       body: Stack(
         fit: StackFit.expand,
         children: <Widget>[
@@ -51,7 +54,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   style: TextStyle(
                     fontSize: 20.0,
                     fontWeight: FontWeight.bold,
-                    color: Colors.indigo,
                   ),
                 ),
                 Row(
@@ -62,10 +64,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       value: darkThemeValue,
                       icon: const Icon(Icons.arrow_downward),
                       elevation: 16,
-                      style: const TextStyle(color: Colors.deepPurple),
                       underline: Container(
                         height: 2,
-                        color: Colors.deepPurpleAccent,
                       ),
                       onChanged: (String? newValue) async {
                         setState(() {

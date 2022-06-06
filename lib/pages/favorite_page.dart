@@ -190,24 +190,11 @@ class _FavoritePageState extends State<FavoritePage> with TickerProviderStateMix
                         controller: _createdScrollController,
                         children: [
                           ...allCreatedRecipes.asMap().entries.map((recipeEntry) => recipeCardBuilder(recipeEntry, true)).toList(),
-                          allCreatedRecipes.isEmpty ? Padding(
-                              padding: const EdgeInsets.all(24.0),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Text('I know you are a great chef. Add your recipe.'),
-                                  TextButton(
-                                      onPressed: () { Navigator.pushNamed(context, '/add-edit-recipe', arguments: {}); },
-                                      child: const Text(
-                                        'Add new recipe',
-                                        style: TextStyle(
-                                          decoration: TextDecoration.underline,
-                                          color: Colors.black,
-                                          fontSize: 18,
-                                        ),
-                                      )
-                                  ),
-                                ],
+                          allCreatedRecipes.isEmpty ? const Padding(
+                              padding: EdgeInsets.all(24.0),
+                              child: Text(
+                                "There are no recipes created by you.\nAdd your recipe by clicking the '+' button.",
+                                textAlign: TextAlign.center,
                               )
                           ) : Padding(
                             padding: const EdgeInsets.all(12.0),

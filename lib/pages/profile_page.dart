@@ -4,6 +4,8 @@ import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
+import 'package:recipes/components/left_drawer.dart';
+
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
 
@@ -74,6 +76,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const LeftDrawer(),
       appBar: AppBar(
         title: const Text('User Profile'),
       ),
@@ -170,13 +173,8 @@ class _ProfilePageState extends State<ProfilePage> {
         controller: controller,
         obscureText: false,
         decoration: InputDecoration(
-          contentPadding: const EdgeInsets.only(bottom: 3),
+          border: const OutlineInputBorder(),
           labelText: labelText,
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          hintStyle: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          )
         ),
       ),
     );
