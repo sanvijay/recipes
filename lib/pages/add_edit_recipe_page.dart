@@ -210,7 +210,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
       child: Container(
-        color: Colors.grey,
+        color: Colors.white30,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
           child: Column(
@@ -316,7 +316,7 @@ class _AddEditRecipePageState extends State<AddEditRecipePage> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
       child: Container(
-        color: Colors.grey,
+        color: Colors.white30,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
           child: Column(

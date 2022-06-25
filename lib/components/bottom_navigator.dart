@@ -17,6 +17,7 @@ class BottomNavigator extends StatelessWidget {
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+        BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_rounded), label: 'Shopping List'),
         BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favorite'),
       ],
       onTap: (index) {
@@ -36,6 +37,13 @@ class BottomNavigator extends StatelessWidget {
           }
           break;
           case 2: {
+            if (ModalRoute.of(context)?.settings.name != '/shop-list') {
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/shop-list', (Route<dynamic> route) => false);
+            }
+          }
+          break;
+          case 3: {
               if (ModalRoute.of(context)?.settings.name != '/favorite') {
                 Navigator.of(context).pushNamedAndRemoveUntil(
                     '/favorite', (Route<dynamic> route) => false);

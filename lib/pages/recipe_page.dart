@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // Import models
 import 'package:recipes/models/recipe.dart';
+import 'package:recipes/models/shopping_item.dart';
 
 // Import controllers
 import 'package:recipes/controllers/recipes_controller.dart';
@@ -105,8 +107,6 @@ class _RecipePageState extends State<RecipePage> {
           if (intAdLoaded) {
             _interstitialAd.show();
           }
-          // ScaffoldMessenger.of(context)
-          //     .showSnackBar(const SnackBar(content: Text("New feature coming soon!")));
           Navigator.pushNamed(
             context,
             '/play-recipe',
@@ -298,6 +298,43 @@ class RecipeDetails extends StatelessWidget {
                       ),
                       textAlign: TextAlign.left,
                     ),
+                  ),
+                  TextButton(
+                    child: const Text("add to cart"),
+                    onPressed: () async {
+                      var box = await Hive.openBox('shoppingList');
+                      bool newEntries = true;
+
+                      for(int i = 0; i < recipe!.ingredients!.length; i++) {
+                        final boxEntry = box.get(recipe!.ingredients![i]['slug']);
+
+                        Set<String> existingTags = {};
+
+                        if (boxEntry != null) {
+                          newEntries = false;
+                          existingTags = Set.from(boxEntry["tags"]);
+                        }
+                        existingTags.add(recipe!.title!);
+
+                        box.put(recipe!.ingredients![i]['slug'], {
+                          "slug": recipe!.ingredients![i]['slug'],
+                          "title": recipe!.ingredients![i]['title'],
+                          "quantity": "${recipe!.ingredients![i]['quantity']}${recipe!.ingredients![i]['unit']}",
+                          "tags": existingTags.toList(),
+                        });
+                        // print(box.get(recipe!.ingredients![i]['slug']));
+                      }
+                      box.close();
+
+                      if (newEntries) {
+                        ScaffoldMessenger.of(context)
+                          .showSnackBar(const SnackBar(content: Text("These ingredients are added to your shopping checklist!")));
+                      }
+                      else {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(content: Text("Shopping checklist is updated with these ingredients!")));
+                      }
+                    },
                   ),
                   // Padding(
                   //   padding: EdgeInsets.symmetric(horizontal: 10.0),

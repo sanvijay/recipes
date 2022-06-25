@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:new_version/new_version.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,6 +22,7 @@ import 'package:recipes/pages/reset_password_page.dart';
 import 'package:recipes/pages/change_password_page.dart';
 import 'package:recipes/pages/feedback_page.dart';
 import 'package:recipes/pages/about_us_page.dart';
+import 'package:recipes/pages/shop_list_page.dart';
 
 // Import Theme
 import 'package:recipes/theme_manager.dart';
@@ -49,6 +51,7 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     showRating();
     newVersionCheck();
+    Hive.initFlutter();
   }
 
   newVersionCheck() async {
@@ -102,6 +105,7 @@ class _MyAppState extends State<MyApp> {
                 '/change-password': (context) => const ChangePasswordPage(),
                 '/feedback': (context) => const FeedbackPage(),
                 '/about-us': (context) => const AboutUsPage(),
+                '/shop-list': (context) => const ShopListPage(),
               },
             )
         )
